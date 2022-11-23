@@ -83,7 +83,7 @@ The $3^{rd}$ primitive roots of are $\zeta_3^1$ and $\zeta_3^2=\overline{\zeta_3
 
 The equality (1) holds due to the sum of complex conjugates being equal to two times the real part since we cancel out the imaginary terms.
 
-\begin{theorem} For all positive integers $n$ we have:
+\begin{theorem} \label{teoremaco}For all positive integers $n$ we have:
 $$\displaystyle x^n-1=\prod_{d|n}\Phi_d(x)$$
 \end{theorem}
 
@@ -114,8 +114,34 @@ An easy way to assert it, is by multiplying the divisor $x-1$ by $\displaystyle\
 \end{proof}
 The following formula will be crucial to instantiate plaintext and cyphertext spaces in the encryption schemes.
 \begin{corollary}[Power of Two Cyclotomic Polynomial]
-
+If $M=2^n$, for a given positive integer $n$, then:
+$$\Phi_M(x)=x^{M/2}+1$$
 \end{corollary}
+\begin{proof}
+We'll proceed by strong induction in $n$ \cite{herstein1996abstract},  proving an equivalent statement\footnote{One can easily verify that $\dfrac{x^{M}-1}{x^{M/2}-1} = x^{M/2}+1$ using the polynomial division algorithm for example, or multiplying the divisor with the quotient}: 
+\begin{equation}
+\label{eq:phim}
+    \Phi_{M_n}(x) = \dfrac{x^{M_n}-1}{x^{M_n/2}-1}
+\end{equation}
+We're denoting $2^n$ by $M_n$ to have a cleaner notation of nested exponents; hence $M_n/2=M_{n-1}$.
+
+(Base case) For $n=1$, $\Phi_{M_1}(x)=\Phi(2)=x+1$, as we derived before. This is the LHS of \ref{eq:phim}. The RHS is $\frac{x^2-1}{x-1}=\frac{(x+1)(x-1)}{x-1}=x+1$, so the formula is valid in this case.
+
+(Inductive Hypothesis) Assume that \ref{eq:phim} hold for $M_k$ for all $k<n$ positive integers.
+
+(Inductive Step) Let's deduce that it also holds for $M_n$: By Theorem  \ref{teoremaco}, we have:
+\begin{align*}
+    \Phi_{M_n}(x) &= \dfrac{x^{M_n}-1}{\displaystyle\prod_{\substack{d|M_n\\d\neq M_n}}\Phi_d(x)}
+\end{align*}
+Notice that $\{d\in\mathbb{Z}^+;d|M_n\} = \{M_0,M_1,\ldots,M_{n-1}\}$, i.e., the divisors of $M_n$ are the powers of two with exponent less than $n$. Then our expression becomes:
+$$\Phi_n(x) = \dfrac{x^{M_n}-1}{\Phi_{M_0}\Phi_{M_1}\ldots\Phi_{M_{n-1}}}$$
+Using the inductive hypothesis we can rewrite the denominator as:
+$$\Phi_{M_0}\Phi_{M_1}\ldots\Phi_{M_{n-1}}=$$
+
+
+
+\end{proof}
+
 \section{Lattices}
 
 \section{LWE and RLWE}
