@@ -135,12 +135,20 @@ We're denoting $2^n$ by $M_n$ to have a cleaner notation of nested exponents; he
 \end{align*}
 Notice that $\{d\in\mathbb{Z}^+;d|M_n\} = \{M_0,M_1,\ldots,M_{n-1}\}$, i.e., the divisors of $M_n$ are the powers of two with exponent less than $n$. Then our expression becomes:
 $$\Phi_n(x) = \dfrac{x^{M_n}-1}{\Phi_{M_0}\Phi_{M_1}\ldots\Phi_{M_{n-1}}}$$
-Using the inductive hypothesis we can rewrite the denominator as:
-$$\Phi_{M_0}\Phi_{M_1}\ldots\Phi_{M_{n-1}}=$$
-
-
-
+Using $\Phi_{M_0}(x)=x-1$ and the inductive hypothesis we can rewrite the denominator as:
+\begin{align*}\Phi_{M_0}\Phi_{M_1}\ldots\Phi_{M_{n-1}}&=(x-1)\cdot \dfrac{x^{M_1}-1}{x^{M_0}-1}\cdot\dfrac{x^{M_2}-1}{x^{M_{1}}-1}\ldots\cdot\dfrac{x^{M_{n-1}}-1}{x^{M_{n-2}}-1}\\&=x^{M_{n-1}}-1,\end{align*}
+since that's the only term left after cancelling out left numerators with right denominators. We then conclude:
+\begin{align*}
+    \Phi_{M_n}(x) &= \dfrac{x^{M_n}-1}{x^{M_{n-1}}-1}=x^{M_n/2}+1
+\end{align*}
 \end{proof}
+
+Another interesting property of cyclotomic polynomials which is quite impressive, is the following theorem:
+\begin{theorem}
+``For any positive integer $n$ we have $\Phi_n(x)\in\Z[x]$, That is, $\Phi_n(x)$ is a polynomial
+with integer coefficients.''\cite{sun2013cyclotomic}
+\end{theorem}
+We defined these polynomials as products of a bunch of complex numbers, but the coefficients end up in the integers! Such a beautiful property will allow us to determine later quotient rings like $\Z[x]/(\Phi_n(x))$ to our encryption context.
 
 \section{Lattices}
 
