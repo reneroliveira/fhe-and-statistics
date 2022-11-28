@@ -99,3 +99,77 @@ keywords = {authentication, digital signatures, public-key cryptosystems, privac
   year={1996},
   publisher={Wiley}
 }
+
+@inproceedings{svp_nphard,
+author = {Ajtai, Mikl\'{o}s},
+title = {The Shortest Vector Problem in L2 is NP-Hard for Randomized Reductions (Extended Abstract)},
+year = {1998},
+isbn = {0897919629},
+publisher = {Association for Computing Machinery},
+address = {New York, NY, USA},
+url = {https://doi.org/10.1145/276698.276705},
+doi = {10.1145/276698.276705},
+booktitle = {Proceedings of the Thirtieth Annual ACM Symposium on Theory of Computing},
+pages = {10–19},
+numpages = {10},
+location = {Dallas, Texas, USA},
+series = {STOC '98}
+}
+
+@InProceedings{hardnes,
+author="Liu, Tianren",
+editor="Beimel, Amos
+and Dziembowski, Stefan",
+title="On Basing Search SIVP on NP-Hardness",
+booktitle="Theory of Cryptography",
+year="2018",
+publisher="Springer International Publishing",
+address="Cham",
+pages="98--119",
+abstract="The possibility of basing cryptography on the minimal assumption {\$}{\$}{\backslash}mathbf{\{}NP {\}}{\backslash}nsubseteq {\backslash}mathbf{\{}BPP {\}}{\$}{\$}NP⊈BPPis at the very heart of complexity-theoretic cryptography. The closest we have gotten so far is lattice-based cryptography whose average-case security is based on the worst-case hardness of approximate shortest vector problems on integer lattices. The state-of-the-art is the construction of a one-way function (and collision-resistant hash function) based on the hardness of the {\$}{\$}{\backslash}tilde{\{}O{\}}(n){\$}{\$}O{\textasciitilde}(n)-approximate shortest independent vector problem {\$}{\$}{\{}{\backslash}textsf {\{}SIVP{\}}{\}}{\_}{\{}{\backslash}tilde{\{}O{\}}(n){\}}{\$}{\$}SIVPO{\textasciitilde}(n).",
+isbn="978-3-030-03807-6"
+}
+
+@online{ppt_dm,
+author = {Micciancio, Daniele},
+title = {Lattice Problems},
+url = {https://www.iacr.org/workshops/tcc2007/Micciancio.pdf},
+organization = {Theory of Cryptography Conference (TCC)},
+year = {2007}
+}
+
+@article{regev09,
+author = {Regev, Oded},
+title = {On Lattices, Learning with Errors, Random Linear Codes, and Cryptography},
+year = {2009},
+issue_date = {September 2009},
+publisher = {Association for Computing Machinery},
+address = {New York, NY, USA},
+volume = {56},
+number = {6},
+issn = {0004-5411},
+url = {https://doi.org/10.1145/1568318.1568324},
+doi = {10.1145/1568318.1568324},
+abstract = {Our main result is a reduction from worst-case lattice problems such as GapSVP and SIVP to a certain learning problem. This learning problem is a natural extension of the “learning from parity with error” problem to higher moduli. It can also be viewed as the problem of decoding from a random linear code. This, we believe, gives a strong indication that these problems are hard. Our reduction, however, is quantum. Hence, an efficient solution to the learning problem implies a quantum algorithm for GapSVP and SIVP. A main open question is whether this reduction can be made classical (i.e., nonquantum).We also present a (classical) public-key cryptosystem whose security is based on the hardness of the learning problem. By the main result, its security is also based on the worst-case quantum hardness of GapSVP and SIVP. The new cryptosystem is much more efficient than previous lattice-based cryptosystems: the public key is of size \~{O}(n2) and encrypting a message increases its size by a factor of \~{O}(n) (in previous cryptosystems these values are \~{O}(n4) and \~{O}(n2), respectively). In fact, under the assumption that all parties share a random bit string of length \~{O}(n2), the size of the public key can be reduced to \~{O}(n).},
+journal = {J. ACM},
+month = {sep},
+articleno = {34},
+numpages = {40},
+keywords = {public key encryption, cryptography, average-case hardness, Lattice, quantum computation}
+}
+
+@InProceedings{lyubashevsky10,
+author="Lyubashevsky, Vadim
+and Peikert, Chris
+and Regev, Oded",
+editor="Gilbert, Henri",
+title="On Ideal Lattices and Learning with Errors over Rings",
+booktitle="Advances in Cryptology -- EUROCRYPT 2010",
+year="2010",
+publisher="Springer Berlin Heidelberg",
+address="Berlin, Heidelberg",
+pages="1--23",
+abstract="The ``learning with errors'' (LWE) problem is to distinguish random linear equations, which have been perturbed by a small amount of noise, from truly uniform ones. The problem has been shown to be as hard as worst-case lattice problems, and in recent years it has served as the foundation for a plethora of cryptographic applications. Unfortunately, these applications are rather inefficient due to an inherent quadratic overhead in the use of LWE. A main open question was whether LWE and its applications could be made truly efficient by exploiting extra algebraic structure, as was done for lattice-based hash functions (and related primitives).",
+isbn="978-3-642-13190-5"
+}
+

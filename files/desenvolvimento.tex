@@ -152,7 +152,92 @@ We defined these polynomials as products of a bunch of complex numbers, but the 
 
 \section{Lattices}
 
-\section{LWE and RLWE}
+This section introduces lattices and hard lattice problems that will base the security of fully homomorphic schemes.
+\begin{definition}[Lattice]
+Let $b_1,\ldots,b_k\in\mathbb{R}^n$ be linearly independent vectors, then
+$$\mathcal{L}=\Big\{\sum_{i=1}^ky_ib_i\left|\right.y_i\in\mathbb{Z}\Big\}$$
+is a ($n$-dimensional) \textbf{lattice} and $(b_1,\ldots,b_k)$ its \textbf{basis}. If we create a $n\times k$ matrix $\mathbf B$, where the $i$-th column is $b_i$, then we can write
+$$\mathcal{L}(\mathbf B)=\{\mathbf B y| ~y\in \mathbb{Z}^k\}\subset \operatorname{span}(B)$$
+\end{definition}
+Figure \ref{fig:lattices} shows two geometrical examples in $\R^2$, the first one using canonical basis $(e_1,e_2)$, and the second suing $B=(b_1,b_2)$, with $b_1=e_1$ and $b_2=\frac{1}{\sqrt2}(2,1)$
+\begin{figure}[!htb]
+\centering
+\begin{subfigure}{.5\textwidth}
+  \centering
+  \includegraphics[scale=0.25]{files/figures/lattice_canonical.png}
+  \caption{Canonical basis}
+  \label{fig:canonical_lattice}
+\end{subfigure}%
+\begin{subfigure}{.5\textwidth}
+  \centering
+  \includegraphics[scale=0.25]{files/figures/lattice2.png}
+  \caption{Basis $B=(b_1,b_2)$}
+  \label{fig:sub2}
+\end{subfigure}
+\caption{Lattices examples}
+\label{fig:lattices}
+\end{figure}
+
+\begin{definition}[Ideal lattice]
+An \textbf{ideal lattice} $\mathcal L$ is a lattice that is closed under addition and multiplication: For $v_1,v_2\in \mathcal{L}$, we have $v_1+v_2\in \mathcal{L}$ and $v_1\cdot v_2\in\mathcal L$, with the operations inherited by $\R^n$
+\end{definition} 
+
+\begin{definition}[Successive minima]
+The $i^{th}$ successive minima of an $n$-dimensional lattice $\mathcal L$, denoted by $\lambda_i(\mathcal L)$ is the smallest $r$ such that origin-centered ball with radius $r$ contains $i$ linearly independent (LI) lattice vectors.
+\end{definition}
+
+In Figure \ref{fig:canonical_lattice} example $\lambda_1(\mathcal L)=\lambda_2(\mathcal L)=1$, since the unity ball contains the two LI canonical vectors. But in Figure \ref{fig:sub2}, it's not so obvious, but $\lambda_1(\mathcal L)=||b_3||_2\approx 0.82$, where $b_3=b_2-b_1$ and $\lambda_2(\mathcal L) = ||b_4||_2\approx0.92$, with $b_4=b_3-b_1$. In Figure \ref{fig:successive_minimas} we can visually verify that $b_3$ and $b_4$ are indeed LI.
+
+\begin{figure}[!htb]
+\centering
+\begin{subfigure}{.5\textwidth}
+  \centering
+  \includegraphics[scale=0.25]{files/figures/lambda1.png}
+  \caption{$1^{st}$ successive minima}
+  \label{fig:lambda1}
+\end{subfigure}%
+\begin{subfigure}{.5\textwidth}
+  \centering
+  \includegraphics[scale=0.23]{files/figures/lambda2.png}
+  \caption{$2^{nd}$ successive minima}
+  \label{fig:lambda2}
+\end{subfigure}
+\caption{Successive Minimas}
+\label{fig:successive_minimas}
+\end{figure}
+
+\subsection{Lattice Problems}
+Now we can define two famous lattice problems, all of them considered NP-hard \cite{hardnes}. ``The approximation factor $\gamma$ is usually taken as a function of lattice dimension $\gamma(n)$.'' \cite{ppt_dm}
+
+\begin{definition}[Shortest Vector Problem - SVP] Given a lattice $\mathcal L$ and a norm $||.||$, find a non-zero $v\in\mathcal L$ such that $||v||\leq\gamma \lambda_1(\mathcal L)$, i.e., the non-zero lattice vector closest to the origin. 
+\end{definition}
+
+In the above example of $\mathcal L (b_1,b_2)$ the shortest vector is $b_3$, for $\gamma=1$.
+
+\begin{definition}[Shortest Independent Vector Problem - SIVP] Given a lattice $\mathcal L$ of dimension $n$ and a norm $||.||$, find $n$ linearly independent vectors $v_1,v_2,\ldots,v_n$ such that $\displaystyle\max_{i}{||v_i||}\leq\gamma\lambda_n(\mathcal L)$.
+\end{definition}
+
+For $\mathcal L (b_1,b_2)$, the solution for the $\text{SIVP}_\gamma$ with $\gamma=1$ is $\{b_3,b_4\}$.
+
+These problems establish the so-called \textit{lattice-based cryptography}, which are cryptosystems that have their security based on solving the above problems of variants. All The fully homomorphic encryption schemes we shall dive deeper into in the next chapter are lattice-based.
+
+\subsection{Ring Learning with Errors}
+Now that we have computationally complex challenges, the next step is, based on these results, constructing a concrete secure cryptography scheme. The following two problems are a step in this direction.
+
+\begin{definition}[Learning with Errors - LWE] Given an integer $n$, another integer $q$ such that\footnote{$\poly(n)$ denotes a polynomial function of $n$.} $2\leq q\leq \poly(n)$ and a distribution $\chi$ over $\Z_q$. Fix $\bds\in \Z_q^n$, the Search $\operatorname{LWE}_{n,q,\chi}$ problem is to recover $\boldsymbol s$, given observations $(\bda_i,b_i)$, where\footnote{Notation $x\xlongleftarrow[]{\chi}S$, means $x$ were drawn from distribution $\chi$ over the set $S$, and $\mathcal{U}$ is the uniform distribution}:
+\begin{align*}
+    \bda_i&\xlongleftarrow[]{\mathcal U}\Z_q^n\\
+    b_i &= \langle \bda_i,\bds\rangle + e_i\\
+    e_i&\xlongleftarrow[]{\chi}\Z_q
+\end{align*}
+The Decision $\operatorname{LWE}_{n,q,\chi}$ is the problem of distinguishing between the distribution of $(\bda_i,b_i)$ gotten from the above procedure and the uniform distribution over $\Z_q^{n+1}$.
+\end{definition}
+Under reasonable assumptions on $\chi$, if an algorithm efficiently solves the above problem, GapSVP and SIVP can also be solved efficiently\cite{regev09}. LWE provides a nice setup for private key encryption since one can expose $(\bda_i,b_i)$ while the hardness of lattice-based problems guarantees security of $\bds$. Further, we shall name $(\bda_i,b_i)$ as the public key and $\bds$ as the private key.
+
+In our main FHE construction, the scheme is actually bases on a variant of LWE proposed by \cite
+% $\boldsymbol a$ is taken uniformly from $\Z_q^n$ and $b=\langle \boldsymbol s,\boldsymbol$
+
+
 
 \chapter{Homomorphic Encryption}
 
@@ -203,7 +288,7 @@ Take for example $\Plain = (\N;+,\leq)$ and $\Cypher = (W;+',\leq')$ for some $W
 \end{alineas}
 This is an efficient $O(\log n)$ algorithm to compute the decryption function $\phi$, using the operations in $\Cypher$ and the ability to generate encryptions of arbitrary constants (such as $1$ and $m$ in the above example).
 
-The article finishes with the authors pondering if such an approach with all required security restrictions could be worthwhile in practice and what algebraic structures $\Plain$ would provide usefuls privacy homomorphisms.
+The article finishes with the authors pondering if such an approach with all required security restrictions could be worthwhile in practice and what algebraic structures $\Plain$ would provide useful privacy homomorphisms.
 % \section{First Generation Fully Homomorphic schemes}
 % \begin{alineas}
 % \item somewhat/fully homomorphic
@@ -216,20 +301,24 @@ The article finishes with the authors pondering if such an approach with all req
 \section{Gentry's work}
 
 
-\subsection{BFV and BGV schemes (integers)}
+% \subsection{BFV and BGV schemes (integers)}
 
-\begin{alineas}
-\item describe BFV primitives (codec/ring)
-\item encrypt/decrypt
-\item relinelization
-\item BGV differences
-\end{alineas}
+% \begin{alineas}
+% \item describe BFV primitives (codec/ring)
+% \item encrypt/decrypt
+% \item relinelization
+% \item BGV differences
+% \end{alineas}
 
 \subsection{CKKS scheme (complex numbers)}
 
-- brief description about fixed point arithmetic?
+- brief description about fixed point arithmetic? no 
 - the complex map 
-- 
+- give a broad overview and then in subsection describe codec and bootstrapping
+
+\subsubsection{Encoding and Decoding}
+
+
 \subsection{Approximate Bootstrapping}
 
 \chapter{Private Logistic Regression}

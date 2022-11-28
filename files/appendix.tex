@@ -1,0 +1,20 @@
+\chapter{Gentry's lattice based scheme}
+
+\begin{definition}[Half-open parallelepiped]
+For a given lattice basis $\mathbf B$, we define the half-open parallelepiped $\mathcal P (\mathbf B)$ as:
+$$\mathcal P (\mathbf B)=\Big\{\sum_{i=1}^{n}x_ib_i\left|\right. x_i\in [-1/2,1/2)\Big\}$$
+\end{definition}
+
+\begin{proposition}\cite{stan16}
+For a given $\mathbf t \in\mathbb{R}^n$, there exists an unique $\mathbf t'\in\mathcal P(\mathbf B)$, such that, $\mathbf t-\mathbf t' \in\mathcal L(\mathbf B)$ we define the operation of ``reduction modulo the basis'' as the map from $\mathbf t$ to $\mathbf t'$.
+\begin{align*}
+    \mod \mathbf B:\mathbb{R}^n&\to\mathcal P(\mathbf B)\\
+    \mod \mathbf B:\mathbf t &\mapsto \mathbf t \bmod \mathbf B := \mathbf t'
+\end{align*}
+
+This operation can be computed as:
+$$\mathbf t\bmod \mathbf B=\mathbf t-\mathbf B\cdot\lfloor{\mathbf B}^{-1}\cdot\mathbf t\rceil,$$
+
+where $\lfloor.\rceil$ round the entry to the closest integer.
+\end{proposition}
+
