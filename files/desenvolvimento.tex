@@ -318,7 +318,12 @@ The article finishes with the authors pondering if such an approach with all req
 
 \section{Gentry's contribution}
 \label{sec:gentry}
-Let's denote $\phi^{-1}(.)$ by $\enc(\pk,.)$, now requiring a public key $\pk$, and $\phi(.)$ by $\dec(\sk,.)$
+Let's denote $\phi^{-1}(.)$ by $\enc(\pk,.)$, now requiring a public key $\pk$, and $\phi(.)$ by $\dec(\sk,.)$, where $\sk$ is a secret key. The construction also requires an evaluate algorithm $\eval(\pk;.)$ that computes a function $f$ in the cyphertext space. In the previous section's construction, this algorithm $\eval(\pk,f_i,\ldots)=f'_i(\ldots)$, i.e., the computation of $f$ in the encrypted domain won't be a direct evaluation, but a modified one, adapting to restrictions and patterns of the new space.
+
+Take a function $f\in\mathcal P$ in the plaintext space, and some elements $s_1,s_2,\ldots\in S$. Rewriting \ref{privhom} in this new notation we get the correctness property for $f$:
+\begin{align*}
+    \dec(\sk,\eval(\pk,f,s_1,s_2,\ldots))=f(s_1,s_2,\ldots)
+\end{align*}
 % \section{Gentry's work}
 
 
