@@ -253,12 +253,12 @@ Analogously with LWE, we define Decision $\operatorname{RLWE}_{n,q,\chi}$ as the
 An observation in both LWE and RLWE is that, in practice, the distribution $\chi$ of $e_i$ must yield small enough errors compared to $q$. That's why we omit $\bmod q$ after the equation of $b_i$'s. Such a thing would guarantee that $b_i$ is an element of $\Z_q$ or $R_q$.
 
 The Search RLWE can also be reduced to Decision RLWE. Moreover, under some assumptions over the parameters $n,q,\chi$, which we won't state here, an efficient algorithm for Decision $\operatorname{RLWE}_{n,q,\chi}$ implies an efficient algorithm for solving SVP \cite{lyubashevsky10}.
-% $\boldsymbol a$ is taken uniformly from $\Z_q^n$ and $b=\langle \boldsymbol s,\boldsymbol$
 
+The choice of $f(x)$ being a power of two cyclotomic polynomial is purely technical; in general, $f(x)$ could be any cyclotomic polynomial, and all the theory would still holds. We shall further want to multiply two instances of the cyclotomic ring, and there is a method based on Fast Fourier Transform to perform such task \cite{fftmult}. But choosing specifically $f(x)=x^n+1$ admits optimized implementations, and faster implementations \cite{swifft}.
 
 
 \chapter{Fully Homomorphic Encryption}
-This chapter gives an over view of the FHE research. Section \ref{sec:privhom} get back in 1978 and revises the original proposal of the existence of FHE schemes. Section \ref{sec:gentry} explore Gentry's solution through his PhD thesis \cite{gentry2009fully} proving such existence. Section \ref{sec:ckks} presents the so called CKKS scheme \cite{ckks17}, a practical and modern scheme that allows approximate encryption of complex (so, also real) number, very suitable for machine learning applications. 
+This chapter gives an overview of the FHE research. Section \ref{sec:privhom} returns in 1978 and revises the original proposal of the existence of FHE schemes \cite{Rivest1978}, which was called \textit{privacy homomorphisms}. Section \ref{sec:gentry} explores Gentry's solution through his Ph.D. thesis \cite{gentry2009fully} proving such existence. Section \ref{sec:ckks} presents the so-called CKKS scheme \cite{ckks17}, a practical and modern scheme that allows approximate encryption of complex (so, also real) numbers, well suitable for machine learning applications. 
 
 \section{Privacy Homomorphisms}
 \label{sec:privhom}
@@ -318,7 +318,7 @@ The article finishes with the authors pondering if such an approach with all req
 
 \section{Gentry's contribution}
 \label{sec:gentry}
-
+Let's denote $\phi^{-1}(.)$ by $\enc(\pk,.)$, now requiring a public key $\pk$, and $\phi(.)$ by $\dec(\sk,.)$
 % \section{Gentry's work}
 
 
