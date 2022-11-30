@@ -112,7 +112,7 @@ An easy way to assert it, is by multiplying the divisor $x-1$ by $\displaystyle\
     &=x^{p}-1
 \end{align*}
 \end{proof}
-The following formula will be crucial to instantiate plaintext and cyphertext spaces in the encryption schemes.
+The following formula will be crucial to instantiate plaintext and ciphertext spaces in the encryption schemes.
 \begin{corollary}[Power of Two Cyclotomic Polynomial]
 If $M=2^n$, for a given positive integer $n$, then:
 $$\Phi_M(x)=x^{M/2}+1$$
@@ -135,15 +135,15 @@ We're denoting $2^n$ by $M_n$ to have a cleaner notation of nested exponents; he
 \end{align*}
 Notice that $\{d\in\mathbb{Z}^+;d|M_n\} = \{M_0,M_1,\ldots,M_{n-1}\}$, i.e., the divisors of $M_n$ are the powers of two with exponent less than $n$. Then our expression becomes:
 $$\Phi_n(x) = \dfrac{x^{M_n}-1}{\Phi_{M_0}\Phi_{M_1}\ldots\Phi_{M_{n-1}}}$$
-Using $\Phi_{M_0}(x)=x-1$ and the inductive hypothesis we can rewrite the denominator as:
+Using $\Phi_{M_0}(x)=x-1$ and the inductive hypothesis, we can rewrite the denominator as:
 \begin{align*}\Phi_{M_0}\Phi_{M_1}\ldots\Phi_{M_{n-1}}&=(x-1)\cdot \dfrac{x^{M_1}-1}{x^{M_0}-1}\cdot\dfrac{x^{M_2}-1}{x^{M_{1}}-1}\ldots\cdot\dfrac{x^{M_{n-1}}-1}{x^{M_{n-2}}-1}\\&=x^{M_{n-1}}-1,\end{align*}
-since that's the only term left after cancelling out left numerators with right denominators. We then conclude:
+since that's the only term left after canceling out left numerators with right denominators. We then conclude:
 \begin{align*}
     \Phi_{M_n}(x) &= \dfrac{x^{M_n}-1}{x^{M_{n-1}}-1}=x^{M_n/2}+1
 \end{align*}
 \end{proof}
 
-Another interesting property of cyclotomic polynomials which is quite impressive, is the following theorem:
+Another interesting property of cyclotomic polynomials, which is quite impressive, is the following theorem:
 \begin{theorem}
 ``For any positive integer $n$ we have $\Phi_n(x)\in\Z[x]$, That is, $\Phi_n(x)$ is a polynomial
 with integer coefficients.''\cite{sun2013cyclotomic}
@@ -186,7 +186,7 @@ An \textbf{ideal lattice} $\mathcal L$ is a lattice that is closed under additio
 The $i^{th}$ successive minima of an $n$-dimensional lattice $\mathcal L$, denoted by $\lambda_i(\mathcal L)$ is the smallest $r$ such that origin-centered ball with radius $r$ contains $i$ linearly independent (LI) lattice vectors.
 \end{definition}
 
-In Figure \ref{fig:canonical_lattice} example $\lambda_1(\mathcal L)=\lambda_2(\mathcal L)=1$, since the unity ball contains the two LI canonical vectors. But in Figure \ref{fig:sub2}, it's not so obvious, but $\lambda_1(\mathcal L)=||b_3||_2\approx 0.82$, where $b_3=b_2-b_1$ and $\lambda_2(\mathcal L) = ||b_4||_2\approx0.92$, with $b_4=b_3-b_1$. In Figure \ref{fig:successive_minimas} we can visually verify that $b_3$ and $b_4$ are indeed LI.
+In Figure \ref{fig:canonical_lattice} example $\lambda_1(\mathcal L)=\lambda_2(\mathcal L)=1$, since the unity ball contains the two LI canonical vectors. But in Figure \ref{fig:sub2}, it's not so obvious, but $\lambda_1(\mathcal L)=||b_3||_2\approx 0.82$, where $b_3=b_2-b_1$ and $\lambda_2(\mathcal L) = ||b_4||_2\approx0.92$, with $b_4=b_3-b_1$. In Figure \ref{fig:successive_minimas}, we can visually verify that $b_3$ and $b_4$ are indeed LI.
 
 \begin{figure}[!htb]
 \centering
@@ -234,9 +234,9 @@ The Decision $\operatorname{LWE}_{n,q,\chi}$ is the problem of distinguishing be
 \end{definition}
 Under reasonable assumptions on $\chi$, if an algorithm efficiently solves the above (decision) problem, GapSVP and SIVP can also be solved efficiently \cite{regev09}. 
 
-LWE provides a nice setup for private key encryption since one can expose $(\bda_i,b_i)$ while the hardness of lattice-based problems guarantees security of $\bds$. Further, we shall name $(\bda_i,b_i)$ as the public key and $\bds$ as the private key. One can still proved that Seach-LWE can be reduced to Decision-LWE \cite{lyubashevsky10} which completes the cycle.
+LWE provides a nice setup for private key encryption since one can expose $(\bda_i,b_i)$ while the hardness of lattice-based problems guarantees the security of $\bds$. Further, we shall name $(\bda_i,b_i)$ as the public key and $\bds$ as the private key. One can still prove that Seach-LWE can be reduced to Decision-LWE \cite{lyubashevsky10}, which completes the cycle.
 
-In our main FHE construction, the scheme is actually bases on a variant of LWE:
+In our main FHE construction, the scheme is based on a variant of LWE:
 
 \begin{definition}
 [Ring Learning with Errors - RLWE] Set integers $n,q$, with $n$ being a power of two, and $2\leq q \leq \poly(n)$. Let $f(x)=x^n+1$ (the $2n$-th cyclotomic polynomial), define $R=\Z[x]/\langle f(x)\rangle$, a distribution $\chi$ over $R$ and $R_q=R/\langle q\rangle =\Z_q/\langle f(x)\rangle$ which can be represented by polynomials with integer coefficients wrapped by $q$ and with degree up to $n-1$.
@@ -264,7 +264,7 @@ This chapter gives an overview of the FHE research. Section \ref{sec:privhom} re
 \label{sec:privhom}
 Assume we can represent the unencrypted data by an algebraic structure $\mathcal P= (S;f_1,\ldots,f_k)$, i.e., a set $S$ ported with the operations $f_1,\ldots,f_k$. We will further call this structure the plaintext space.
 
-An alternative algebraic structure, the cyphertext space $\Cypher=(S',f'_1,\ldots,f'_k)$, is constructed to represent the encrypted data. To build a \textit{privacy homomorphism} \cite{Rivest1978},  one needs a decryption function $\phi:S'\to S$ and its inverse $\phi^{-1}:S\to S'$ satisfying the homomorphic property from $\Cypher$ do $\Plain$:
+An alternative algebraic structure, the ciphertext space $\Cypher=(S',f'_1,\ldots,f'_k)$, is constructed to represent the encrypted data. To build a \textit{privacy homomorphism} \cite{Rivest1978},  one needs a decryption function $\phi:S'\to S$ and its inverse $\phi^{-1}:S\to S'$ satisfying the homomorphic property from $\Cypher$ do $\Plain$:
 \begin{align}
     \label{privhom}
     f'_i(a,b,\ldots)&=c\Rightarrow\nonumber\\ f_i(\phi(a),\phi(b),\ldots)&=\phi(c),\text{ for } i=1,\ldots,k\\
@@ -272,7 +272,7 @@ An alternative algebraic structure, the cyphertext space $\Cypher=(S',f'_1,\ldot
 \end{align}
 This means that for all available operations $f'_i$, its evaluation on encrypted elements must result in a value that, after decryption, corresponds to the same computation on the unencrypted domain.
 
-An example of privacy homomorphism is the RSA cryptosystem \cite{rsa}, which uses $\Plain = (\Z_p;\times_p)$, the integers modulo $p$ with $p$ prime, and the multiplication modulo $p$. Setting $N=pq$, where $q$ is a large prime and choosing $e$ coprime with $(p-1)(q-1)$,  the cyphertext space as $(\Z_N;\times_N)$ and is connected with $\Plain$ through the encryption function:
+An example of privacy homomorphism is the RSA cryptosystem \cite{rsa}, which uses $\Plain = (\Z_p;\times_p)$, the integers modulo $p$ with $p$ prime, and the multiplication modulo $p$. Setting $N=pq$, where $q$ is a large prime and choosing $e$ coprime with $(p-1)(q-1)$,  the ciphertext space as $(\Z_N;\times_N)$ and is connected with $\Plain$ through the encryption function:
 \begin{align*}
     \phi^{-1}&:\Z_p\to\Z_N\\
     \phi^{-1}(x)&=x^e(\bmod N)
@@ -284,7 +284,7 @@ Taking $x,y\in\Z_p$ and its encrypted versions $x'=\phi^{-1}(x),~y'=\phi^{-1}(y)
 \end{align*}
 which is an encryption of $xy$. Then the multiplication satisfies property \ref{privhom}, showing that such a system is indeed a privacy homomorphism.
 
-\subsection{Requirements and Limitations}
+\subsection{Requirements and Limitations}\label{subsec:reqs}
 The following properties for $\Cypher,\phi$ and $\phi^{-1}$ are required by the authors:
 \begin{alineas}
     \item for a given element $s\in S$, its encrypted version $\phi^{-1}(s)$ should not require much more storage space;
@@ -294,9 +294,9 @@ The following properties for $\Cypher,\phi$ and $\phi^{-1}$ are required by the 
     \item The operations of $\Cypher$ should not be sufficient to yield an efficient computation of $\phi$.
 \end{alineas}
 
-The last requirement forces a critical restriction on such morphisms: a comparison operator ``$\leq$'' can't be available in the cyphertext space, otherwise, no secure privacy homomorphism exists.
+The last requirement forces a critical restriction on such morphisms: a comparison operator ``$\leq$'' can't be available in the ciphertext space, otherwise, no secure privacy homomorphism exists.
 
-Take for example $\Plain = (\N;+,\leq)$ and $\Cypher = (W;+',\leq')$ for some $W$. A malicious party who has $\phi^{-1}(n)$, and wants to discover what $n\in\N$ generated such cyphertext can apply the following binary search strategy:
+Take for example $\Plain = (\N;+,\leq)$ and $\Cypher = (W;+',\leq')$ for some $W$. A malicious party who has $\phi^{-1}(n)$ and wants to discover what $n\in\N$ generated such ciphertext can apply the following binary search strategy:
 \begin{alineas}
 \item compute $1'=\phi^{-1}(1)$;
 \item compute $2'=1'+'1'$, then $4'=2'+'2'$;
@@ -316,14 +316,124 @@ The article finishes with the authors pondering if such an approach with all req
 % \item caveats and implementation paper
 % \end{alineas}
 
-\section{Gentry's contribution}
+\section{Bootstrappable encryption}
 \label{sec:gentry}
-Let's denote $\phi^{-1}(.)$ by $\enc(\pk,.)$, now requiring a public key $\pk$, and $\phi(.)$ by $\dec(\sk,.)$, where $\sk$ is a secret key. The construction also requires an evaluate algorithm $\eval(\pk;.)$ that computes a function $f$ in the cyphertext space. In the previous section's construction, this algorithm $\eval(\pk,f_i,\ldots)=f'_i(\ldots)$, i.e., the computation of $f$ in the encrypted domain won't be a direct evaluation, but a modified one, adapting to restrictions and patterns of the new space.
+The existence of (useful) privacy homomorphisms remained an open problem for more than 30 years until \cite{gentry2009fully} came up with a beautiful solution in his Ph.D. thesis. He introduced a privacy homomorphism based on ideal lattices and proposed a method named bootstrapping, his most significant insight, to control ciphertext noise growth. A second paper was proposed, with a slightly simpler scheme using integers instead of lattices \cite{fhe_integers}.
 
-Take a function $f\in\mathcal P$ in the plaintext space, and some elements $s_1,s_2,\ldots\in S$. Rewriting \ref{privhom} in this new notation we get the correctness property for $f$:
+This section summarizes Gentry's achievement, \ref{sub:over} with a complete summarized overview of the solution,  \ref{sub:over} describing the scheme over the integer.
+% , and \ref{sub:practical} commenting about practical considerations. 
+We let the explanation of the original cryptosystem over ideal lattices to Appendix \ref{appendixA} since not reading doesn't interfere in the text flow.
+
+\subsection{Overview and Bootstrapping}
+\label{sub:over}
+Let's denote $\phi^{-1}(.)$ by $\enc(\pk,.)$, now requiring a public key $\pk$, and $\phi(.)$ by $\dec(\sk,.)$, where $\sk$ is a secret key. The construction also requires an evaluate algorithm $\eval(\pk;.)$ that computes a function $f$ in the ciphertext space. In the previous section's construction, this algorithm $\eval(\pk,f_i,\ldots)=f'_i(\ldots)$, i.e., the computation of $f$ in the encrypted domain won't be a direct evaluation, but a modified one, adapting to restrictions and patterns of the new space.
+
+Take a function $f\in\mathcal P$ in the plaintext space, and some elements $s_1,s_2,\ldots\in S$, and its encrypted versions $c_i=\enc(\pk,s_i)$. Rewriting \ref{privhom} in this new notation, we get the correctness property for $f$:
+\begin{align}
+\label{eq:correctness}
+    \dec(\sk,\eval(\pk,f,c_1,c_2,\ldots))=f(s_1,s_2,\ldots)
+\end{align}
+The encryption function \textbf{must add random noise to the plaintext} messages to resist the chosen ciphertext attack as required in the property (d) of \ref{subsec:reqs}. Calling $\enc(\pk,s)$ multiple times would yield different ciphertexts each time, but decrypting all of them, returns to $s$.
+
+\begin{definition}[Fully Homomorphic Encryption - FHE]
+The first definition of FHE scheme defines it as a scheme that allows anyone to evaluate ``any desired function $f$'' over the encrypted data $c_1,c_2,\ldots$ without decrypting it, just as privacy homomorphisms. \cite{gentry2009fully}
+\end{definition}
+In practice, what is proven is the existence of a scheme that can evaluate addition and multiplication functions, which are enough to compose any boolean circuit.
 \begin{align*}
-    \dec(\sk,\eval(\pk,f,s_1,s_2,\ldots))=f(s_1,s_2,\ldots)
+    \dec(\sk,\eval(\pk,+,c_1,c_2))=s_1+s_2\\
+    \dec(\sk,\eval(\pk,\times,c_1,c_2))=s_1\times s_2\\
 \end{align*}
+Because of the noise added in the encryption step, if we perform multiple additions and multiplications, the noise can grow at levels that might affect the above correctness property (this will soon become clearer). Then, we introduce the following concept:
+\begin{definition}[Somewhat Homomorphic Encryption - SHE] Let $F$ be a circuit of composition of additions and multiplications with a given depth. A SHE scheme satisfies the following:
+$$\dec(\sk,\eval(\pk,F,c_1,c_2,\ldots))=f(s_1,s_2,\ldots)
+$$
+only if the depth of $F$ is less than the scheme's maximum allowed depth.
+\end{definition}
+
+The bottleneck to achieving an FHE scheme is the introduction of noise in the encryption function. A circuit $F$ with a big enough number of multiplications, for example, might not satisfy the correctness property because of the noise's size compared to the original message.
+
+Then a process called \textit{bootstrap} is introduced \cite{gentry2009fully}, which is a way of reducing the ciphertext noise by homomorphically evaluating the own scheme decryption function, producing a new ciphertext that encrypts the same message with less noise. 
+
+To achieve a fully homomorphic scheme out of a somewhat homomorphic one, it's enough to prove that the scheme is ``bootstrappable'', i.e., that it can correctly evaluate circuits that are deeper than its own decryption circuit. 
+
+Suppose $c$ encrypts $s$ under $\pk_1$, and we want to reduce its noise; one way to do that is to decrypt $c$ using the secret key, getting back to the plaintext space (without any noise) and then encrypt $s$ again generating a fresh and new encryption. To maintain security and not reveal the actual message, the process is done homomorphically. 
+
+Suppose we have $\sk^* = \operatorname{Encrypt}(\sk_1,\pk_2)$, an encryption of the secret key under a second public key $\pk_2$. Define the $\operatorname{Recrypt}$ algorithm as:
+\begin{align*}
+   \operatorname{Recrypt}(\pk_2,\sk^*,\dec,c)&\\
+   \text{Set }c^*&=\enc(c,\pk_2)\\
+   \text{Output }c_2&=\eval(\pk_2,\dec,\sk^*,c^*)
+\end{align*}
+% The output of Recrypt is encryption of $\dec(\sk_1,c)=s$ under $pk_2$.
+Figure \ref{fig:bootstrapping} illustrates this procedure through the blue arrows.
+
+The $\enc$ function might introduce some noise to $c_2$, but as long as this noise is less than the one associated with $c$, we succeed in refreshing ciphertext noise. 
+
+
+% https://q.uiver.app/?q=WzAsNCxbMCwyLCJjIl0sWzAsMCwiY14qIl0sWzMsMiwibSJdLFszLDAsImNfMiJdLFswLDEsIlxcb3BlcmF0b3JuYW1le0VuY30oXFxvcGVyYXRvcm5hbWV7cGt9XzIsXFxjZG90KSIsMCx7InN0eWxlIjp7ImJvZHkiOnsibmFtZSI6ImRhc2hlZCJ9fX1dLFswLDIsIlxcb3BlcmF0b3JuYW1le0RlY30oXFxvcGVyYXRvcm5hbWV7c2t9LFxcY2RvdCkiLDJdLFsxLDMsIlxcb3BlcmF0b3JuYW1le0V2YWx9KFxcb3BlcmF0b3JuYW1le3BrfV8yLFxcb3BlcmF0b3JuYW1le0RlY30sXFxvcGVyYXRvcm5hbWV7c2t9XiosXFxjZG90KSIsMCx7InN0eWxlIjp7ImJvZHkiOnsibmFtZSI6ImRhc2hlZCJ9fX1dLFszLDIsIlxcb3BlcmF0b3JuYW1le0RlY30oXFxvcGVyYXRvcm5hbWV7c2t9LFxcY2RvdCkiXV0=
+
+\begin{figure}[!htb]
+    \centering
+    \includegraphics[scale=0.9]{files/figures/bootstrapping.png}
+    \caption{Bootstrapping procedure}
+    \label{fig:bootstrapping}
+\end{figure}
+
+\subsection{An integer scheme}
+\label{sub:int}
+A second work from Gentry \cite{fhe_integers} introduces a conceptually simpler SHE scheme using the ring of integers as the underlying algebraic structure instead of ideal lattices. 
+
+We start with a private key scheme and then transform it into a public key one:
+
+\begin{itemize}
+    \item $\operatorname{KeyGen}$ - sets the private key as an odd integer $p$
+    \item $\enc(p,m)$ - given a bit message $m\in\{0,1\}$, outputs $c=pq+2r+m$, where $q$ and $r$ are choosen randomly in some prescribed interval.
+    \item $\dec(p,c)$ - outputs $(c\bmod p)\bmod 2$
+\end{itemize}
+
+Correctness property can be easily checked, assuming $2r<p/2$:
+\begin{align*}
+    &\dec(p,\enc(p,m))\\
+    &=\dec(p,pq+2r+m)\\
+    &=((pq+2r+m)\bmod p)\bmod 2\\
+    &=(2r+m)\bmod 2\\
+    &=m
+\end{align*}
+
+Let's emphasize the need for bootstrapping with a toy example.
+
+Let's say we want to add $m=1$ continuously. Set $p=29$, and let's suppose the encryption algorithm sampled $q=8, r=3$. Now, take the ciphertext $pq+2r+m$ and add-t to itself $c+c = p(2q)+4r+m+m$.
+
+In the decryption function, the modulo-p reduction will eliminate $p(2q)$, and mod 2 will output us $m+m = 0$ as desired.
+
+In general, if $\alpha\geq 1$ is an integer., $\alpha c=p(\alpha q)+2\alpha r+\alpha m,$
+
+If we want to discover how many times we can add $c$ to itself and the decryption still works, the only condition is $2\alpha r<p$. Solving the inequality for $p=29,r=3$ we get $\alpha<29/6\approx 4.83$. So for $\alpha = 5$ we have no guarantee that the scheme will work.
+
+Since $\alpha = 5$ is odd $\alpha m = 1$, so we would like $\dec(29,5c)=1$, but:
+\begin{align*}
+    &~~~\dec(29,5c)\\
+    &=\dec(29,29\cdot(5 q)+2\cdot5 r+5 m)\\
+    & = ((29\cdot(5 q)+30+5 m)\bmod 29)\bmod 2\\
+    &=(1+5m)\bmod2\\
+    & = 6\bmod 2\\
+    & = 0
+\end{align*}
+
+Then decryption failed because the error was sum up to $5\alpha r$ and eventually got bigger than $p$.
+
+To obtain a public key encryption scheme out of the above private key one, we set:
+
+$\pk = (x_1,\ldots,x_\tau),\text{ where }x_i=pq_i+2r_i$, $p$ is a given private key, and $q_i,r_i$ are random sampled for each generation of $x_i$.
+
+Then the encryption algorithm is transformed:
+
+\begin{itemize}
+    \item $\enc(\pk,m)$ - random sample $S$ from $\{1,\ldots,\tau\}$ and an integer $r$, then output $c = m + 2r + 2\sum_{i\in S}x_i$
+\end{itemize}
+
+The security of the scheme is based on the hardness of the \textit{approximate gcd problem}, i.e, find $p$ given its ``approximate multiples'' $x_1,\ldots,x_\tau$.
+
 % \section{Gentry's work}
 
 
@@ -335,7 +445,8 @@ Take a function $f\in\mathcal P$ in the plaintext space, and some elements $s_1,
 % \item relinelization
 % \item BGV differences
 % \end{alineas}
-
+% \subsection{Practical considerations}
+% \label{sub:practical}
 \section{Approximate Numbers Homomorphic Encryption}
 \label{sec:ckks}
 

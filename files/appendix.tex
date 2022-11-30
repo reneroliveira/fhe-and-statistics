@@ -1,11 +1,17 @@
-\chapter{Gentry's lattice based scheme}
+\chapter{An ideal lattice scheme}
+\label{appendixA}
+\section{Initial definitions}
+
+\begin{definition}[Relatively Prime Ideals]
+Two ideals $I$ and $J$ of a ring $R$ are considered relatively primes if $I+J=R$, where $I+J=\{i+j|i\in I,j\in J\}$.
+\end{definition}
 
 \begin{definition}[Half-open parallelepiped]
 For a given lattice basis $\mathbf B$, we define the half-open parallelepiped $\mathcal P (\mathbf B)$ as:
 $$\mathcal P (\mathbf B)=\Big\{\sum_{i=1}^{n}x_ib_i\left|\right. x_i\in [-1/2,1/2)\Big\}$$
 \end{definition}
 
-\begin{proposition}\cite{stan16}
+\begin{proposition}
 For a given $\mathbf t \in\mathbb{R}^n$, there exists an unique $\mathbf t'\in\mathcal P(\mathbf B)$, such that, $\mathbf t-\mathbf t' \in\mathcal L(\mathbf B)$ we define the operation of ``reduction modulo the basis'' as the map from $\mathbf t$ to $\mathbf t'$.
 \begin{align*}
     \mod \mathbf B:\mathbb{R}^n&\to\mathcal P(\mathbf B)\\
@@ -15,6 +21,131 @@ For a given $\mathbf t \in\mathbb{R}^n$, there exists an unique $\mathbf t'\in\m
 This operation can be computed as:
 $$\mathbf t\bmod \mathbf B=\mathbf t-\mathbf B\cdot\lfloor{\mathbf B}^{-1}\cdot\mathbf t\rceil,$$
 
-where $\lfloor.\rceil$ round the entry to the closest integer.
+where $\lfloor.\rceil$ round the entry to the closest integer. \cite{stan16}
 \end{proposition}
+
+\section{An abstract construction}
+Gentry \cite{gentry2009fully} proposes an abstract scheme before making reference to ideal lattices. We need the following components:
+
+\begin{itemize}
+    \item $R$ - a fixed ring;
+    \item $\mathbf B_I$ - a fixed basis of an ideal $I\in R$;
+    \item $\operatorname{IdealGen}(R,\mathbf B_I)$ - an algorithm that outputs $\mathbf B_{J}^{pk},\mathbf B_{J}^{sk}$, public and secret basis of an ideal $J$, such that $I$ and $J$ are relatively prime ideals.
+    \item $\operatorname{Samp}(\mathbf B_I,x)$ - a function that samples from the coset $x+I$.
+\end{itemize}
+
+The scheme can be proved secure if we use the function $\operatorname{Samp}(\mathbf B_I,x)=x+r\times s$, where $r$ is chosen randomly from $R$, $I$ is a principal ideal and $s$ its generator.
+
+Moreover, we assume that for every $\mathbf t \in R$, and a given basis $\mathbf B_M$ of an ideal $M\subset R$, there exists an unique representative $\mathbf t \bmod {\mathbf B_M}$, that can be efficiently computed.
+
+Then we can construct a (somewhat) homomorphic encryption scheme, using the functions $\operatorname{KeyGen}$, $\enc$, $\dec$, and $\eval$:
+\begin{itemize}
+    \item $\operatorname{KeyGen}(R,\mathbf B_I)$ - sets public and secret basis $(\mathbf B_{J}^{pk},\mathbf B_{J}^{sk})\leftarrow \operatorname{IdealGen}(R,\mathbf{B_I})$. Then the public key is $\operatorname{pk}=(R,\mathbf B_I,\mathbf B_J^{pk},\operatorname{Samp})$ and secret key includes the secrete basis $\operatorname{sk}=(R,\mathbf B_I,\mathbf B_j^{pk},\operatorname{Samp},\mathbf B_J^{sk})$
+    \item $\enc(\operatorname{pk},\pi)=\operatorname{Samp}(\mathbf B_I,\pi)\bmod \mathbf B_J^{pk}$
+    
+    \item $\dec(\operatorname{sk},\psi) = (\psi \bmod \mathbf B_J^{sk})\bmod \mathbf{B_I}$
+    
+    \item $\eval(\operatorname{pk},F,\Psi)$ - takes a circuit $F$ of additions and multiplications $\bmod$-$ \mathbf B_I$ and invoked Add and Mult below, in the proper order.
+    \begin{align*}
+        \operatorname{Add}(pk,\psi_1,\psi_2)=\psi_1+\psi_2\bmod\mathbf B_J^{pk}\\
+        \operatorname{Mult}(pk,\psi_1,\psi_2)=\psi_1\times\psi_2\bmod\mathbf B_J^{pk}
+    \end{align*}
+\end{itemize}
+
+More generally, given a circuit $F$ of addition and multiplications  $\bmod$-$ \mathbf B_I$, the $\eval$ function is:
+$$\eval(\operatorname{pk},F,\Psi)=g(F)(\Psi)\bmod\mathbf B_J^{pk},$$
+
+where $g(F)$ is the generalized circuit that replaces $\operatorname{Add}_{\mathbf{B_I}}$ and $\operatorname{Mult}_{\mathbf{B_I}}$ by ``$+$'' and ``$\times$'' operations of the ring $R$.
+
+Its not trivial that correctness property (\ref{eq:correctness}). In fact, it holds only for a specific group of circuits.
+
+Let's define $X_{Enc}$ as the image of $\operatorname{Samp}$ and $X_{Dec}=R\bmod\mathbf{B_J^{sk}}$, i.e, the set of indistinguishable representatives of cosets of $J$.
+
+We call $\mathcal{F_E}$ a set of \textbf{permitted circuits} if its a subset of
+$$\{F:\forall (x_1,\ldots,x_n)\in X_{Enc}, g(F)(x_1,\ldots,x_n)\in X_{Dec}\},$$
+
+i.e., the set of $\bmod$-$\mathbf B_I$ circuits such that its generalization is in $X_{Dec}$ when the input is in $X_{Enc}$. For the permitted circuits, one can prove that homomorphic decryption works correctly.
+
+\section{A concrete construction using ideal lattices}
+
+Let $f\in\mathbb{Z}[x]$ be a monic polynomial of degree $n$ and define the ring:
+$$R=\mathbb{Z}[x]/(f)$$
+
+whose elements can be uniquely represent by:
+
+$$\Big\{\overline{\displaystyle\sum_{i=1}^{n}\alpha_ix^{i-1}}|\alpha_i\in\mathbb Z\Big\},$$
+where $\overline{P(x)}=P(x)\bmod f(x)$, i.e, the remainder in the polynomial division of $P$ by $f$. Since $\deg(f)=n$, the polynomials in the above set have degrees up to $n-1$. So, there is a bijective map $\varphi:R\to\mathbb{Z}^n$, that takes $r=\sum_{i=1}^{n}\alpha_ix^{i-1}\in R$ and makes $\varphi(r)=(\alpha_1,\ldots,\alpha_n)^T$
+
+Let $v\in R$ be a generator of an ideal $J$. We can construct an ideal lattice using the so-called \textit{rotation basis} $\mathbf{B_J}$ with columns: 
+\begin{align*}
+    b_i&=\varphi(b_i^*),\\ 
+    \text{where } b_i^*&=v\times x^{i-1}\bmod f(x)
+\end{align*}
+One can easily prove that there is a bijection between $J$ and $\mathcal{L}(\mathbf{B_J})$.
+\begin{lemma}
+\label{reduction}
+Let $r\in\mathbb{Z}^n,~j\in\mathcal{L}(\mathbf{B_J})$ where $J$ is an ideal of $R=\mathbb{Z}[x]/(f)$. Then:
+$$(r+j)\bmod \mathbf{B_J}=r\bmod \mathbf{B_J}$$
+\end{lemma}
+
+Gentry's original scheme, starts with $R$, an ideal $I$, and $\mathbf{B_I}$ a basis of $\mathcal{L}(\mathbf{B_I})$ (not necessarily the rotation one). Then the algorithm $\operatorname{IdealGen}$ described in previous section, chooses another ideal $J$ such that $I$ and $J$ are relatively primes, and outputs $\mathbf{B_J^{pk}},\mathbf{B_J^{sk}}$ basis of $\mathcal{L}_J$. A possible choice for the secret basis in the rotation one, and for the public basis, one can use the hermite normal form of $\mathbf{B_J^{sk}}$. 
+
+The algorithms $\enc,\dec$ and $\eval$ works as described before. 
+
+Using ideal lattices, we can redefine $X_{Enc}$ and $X_{Dec}$ here in order to obtain a geometric interpretation. At first, notice that $X_{Dec}=R\bmod\mathbf{B_J^{sk}}=\mathcal{P}(B_J^{sk})$.
+
+Let $\mathcal{B}(r)$ be the origin centered ball in $\mathbb{R}^n$ with radius $r$. Then, defines:
+\begin{itemize}
+    \item $r_{Enc}$ - a value s.t.  $\mathcal{B}(r_{Enc})$ is the smallest ball satisfying  $X_{Enc}\subseteq\mathcal{B}(r_{Enc})$
+    \item $r_{Dec}$ - a value s.t. $\mathcal{B}(r_{Dec})$ is the greatest ball satisfying $\mathcal{B}(r_{Dec})\subseteq X_{Dec}=\mathcal{P}(\mathbf{B_J^{sk}})$
+\end{itemize}
+Now the set of permitted circuits become:
+$$\mathcal{F_E}=\{F:\forall (x_1,\ldots,x_n)\in \mathcal{B}(r_{Enc}), g(F)(x_1,\ldots,x_n)\in \mathcal{B}(r_{Dec})\}$$
+
+Fixed $r_{Enc},r_{Dec}$ we want to know what is $\mathcal{C_E}$. We can bound $||g(F)(x_1,\ldots,x_n)||$ by bounding $||u+v||$ and $||u\times v||$. We know that $||u+v||\leq ||u||+||v||$, by the triangle inequality. One can explicit a factor $\gamma_{Mult}(R)$, depending only on the ring, s.t. $||u\times v||\leq\gamma_{Mult}(R)(||u||\times||v||)$.
+Then, Gentry shows that the scheme correctly evaluates any circuit $F$ with depth at most
+$$\log\log r_{Dec}-\log\log(\gamma_{Mult}(R)\cdot r_{Enc})$$
+
+Then the author dedicates a lot of chapters show tweaks to  simplifying the decryption circuit complexity, such that the scheme can evaluate it, and a bootstrappable scheme is achieved.
+
+It's desirable to maximize $r_{Dec}$, and minimize $r_{Enc}$ and $\gamma_{Mult}(R)$. Gentry's work show that:
+\begin{align*}
+    r_{Dec}&=\dfrac{1}{2||\mathbf{B_J^{sk*}}||},\text{ where }\\
+    \mathbf{B_J^{sk*}}&=((\mathbf{B_J^{sk}})^{-1})^T
+\end{align*}
+Also, by choosing $R=\mathbb{Z}[x]/(f)$ with $f(x)=x^n-1$, then it can be proved that:
+$$\gamma_{Mult}(R)\leq\sqrt{n}$$
+
+Now we'll prove that our SHE scheme correctly decrypts a \textit{valid cyphertext} (a cyphertext that can be outputed by $\enc$ or $\eval$).
+
+
+\begin{theorem}[\textbf{Identity correctness}] 
+\label{correctness_thm} Consider $\pi \in \Pi$, where $\Pi=\{\pi|\pi\in\mathcal{P}(\mathbf{ B_I})\}$ is the plaintext space. If $\operatorname{Samp}(\pi)\in\mathcal{B}(r_{Dec})$, then 
+$$\dec(sk,\enc(pk,\pi))=\pi$$ 
+\end{theorem}
+\begin{proof}
+The cyphertext is 
+\begin{align*}
+    \psi &= \operatorname{Samp}(\mathbf{B_I},\pi)\bmod \mathbf{B_J^{pk}}\\
+    &= (\pi+i)\bmod \mathbf{B_J^{pk}},
+\end{align*}
+for some $i\in\mathcal{L}_I$. We can write $\psi=\pi+i+j$, for some $j\in\mathcal{L}_J$ because:
+\begin{align*}
+    \psi&=(\pi+i)\bmod \mathbf{B_J^{pk}}\\
+    &=(\pi + i)-\mathbf{B_J^{pk}}\times c,
+\end{align*}
+where $c=\lfloor(\mathbf{B_J^{pk}})^{-1}(\pi+i)\rceil$. Since $c\in\mathbb{Z}^k$, if $j=\mathbf{B_J^{pk}}\times (-c)$, then $j\in\mathcal{L}_J$, by definition of lattice.
+
+Then, by using Lemma \ref{reduction} and the fact that $(\pi+i)\in\mathcal{B}(r_{Dec})\subseteq\mathcal{P}(\mathbf{B}_J^{sk})$:
+
+\begin{align*}
+    &~~~\dec(sk,\enc(pk,\pi))\\&=\dec(sk,\psi)\\
+    &=((\pi+i+j)\bmod\mathbf{B}_J^{sk})\bmod\mathbf{B}_I\\
+    &=((\pi+i)\bmod\mathbf{B}_J^{sk})\bmod\mathbf{B}_I\\
+    &=(\pi+i)\bmod\mathbf{B}_I\\
+    &=\pi
+\end{align*}
+\end{proof}
+
+
 
