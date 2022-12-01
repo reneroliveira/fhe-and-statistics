@@ -264,7 +264,7 @@ This chapter gives an overview of the FHE research. Section \ref{sec:privhom} re
 \label{sec:privhom}
 Assume we can represent the unencrypted data by an algebraic structure $\mathcal P= (S;f_1,\ldots,f_k)$, i.e., a set $S$ ported with the operations $f_1,\ldots,f_k$. We will further call this structure the plaintext space.
 
-An alternative algebraic structure, the ciphertext space $\Cypher=(S',f'_1,\ldots,f'_k)$, is constructed to represent the encrypted data. To build a \textit{privacy homomorphism} \cite{Rivest1978},  one needs a decryption function $\phi:S'\to S$ and its inverse $\phi^{-1}:S\to S'$ satisfying the homomorphic property from $\Cypher$ do $\Plain$:
+An alternative algebraic structure, the ciphertext space $\cipher=(S',f'_1,\ldots,f'_k)$, is constructed to represent the encrypted data. To build a \textit{privacy homomorphism} \cite{Rivest1978},  one needs a decryption function $\phi:S'\to S$ and its inverse $\phi^{-1}:S\to S'$ satisfying the homomorphic property from $\cipher$ do $\Plain$:
 \begin{align}
     \label{privhom}
     f'_i(a,b,\ldots)&=c\Rightarrow\nonumber\\ f_i(\phi(a),\phi(b),\ldots)&=\phi(c),\text{ for } i=1,\ldots,k\\
@@ -285,18 +285,18 @@ Taking $x,y\in\Z_p$ and its encrypted versions $x'=\phi^{-1}(x),~y'=\phi^{-1}(y)
 which is an encryption of $xy$. Then the multiplication satisfies property \ref{privhom}, showing that such a system is indeed a privacy homomorphism.
 
 \subsection{Requirements and Limitations}\label{subsec:reqs}
-The following properties for $\Cypher,\phi$ and $\phi^{-1}$ are required by the authors:
+The following properties for $\cipher,\phi$ and $\phi^{-1}$ are required by the authors:
 \begin{alineas}
     \item for a given element $s\in S$, its encrypted version $\phi^{-1}(s)$ should not require much more storage space;
     \item $\phi$ and $\phi^{-1}$ should be easy to compute;
-    \item the operations $f_i'$ should be efficiently computable in $\Cypher$;
+    \item the operations $f_i'$ should be efficiently computable in $\cipher$;
     \item $\phi$ should not be vulnerable to the chosen plaintext attack;
-    \item The operations of $\Cypher$ should not be sufficient to yield an efficient computation of $\phi$.
+    \item The operations of $\cipher$ should not be sufficient to yield an efficient computation of $\phi$.
 \end{alineas}
 
 The last requirement forces a critical restriction on such morphisms: a comparison operator ``$\leq$'' can't be available in the ciphertext space, otherwise, no secure privacy homomorphism exists.
 
-Take for example $\Plain = (\N;+,\leq)$ and $\Cypher = (W;+',\leq')$ for some $W$. A malicious party who has $\phi^{-1}(n)$ and wants to discover what $n\in\N$ generated such ciphertext can apply the following binary search strategy:
+Take for example $\Plain = (\N;+,\leq)$ and $\cipher = (W;+',\leq')$ for some $W$. A malicious party who has $\phi^{-1}(n)$ and wants to discover what $n\in\N$ generated such ciphertext can apply the following binary search strategy:
 \begin{alineas}
 \item compute $1'=\phi^{-1}(1)$;
 \item compute $2'=1'+'1'$, then $4'=2'+'2'$;
@@ -305,7 +305,7 @@ Take for example $\Plain = (\N;+,\leq)$ and $\Cypher = (W;+',\leq')$ for some $W
 \item homomorphically compare $\phi^{-1}(n)\leq'\phi^{-1}(2^{k-1})+'\phi^{-1}(m)$;
 \item repeat the last two steps properly redefining the interval until getting $n$ exactly.
 \end{alineas}
-This is an efficient $O(\log n)$ algorithm to compute the decryption function $\phi$, using the operations in $\Cypher$ and the ability to generate encryptions of arbitrary constants (such as $1$ and $m$ in the above example).
+This is an efficient $O(\log n)$ algorithm to compute the decryption function $\phi$, using the operations in $\cipher$ and the ability to generate encryptions of arbitrary constants (such as $1$ and $m$ in the above example).
 
 The article finishes with the authors pondering if such an approach with all required security restrictions could be worthwhile in practice and what algebraic structures $\Plain$ would provide useful privacy homomorphisms.
 % \section{First Generation Fully Homomorphic schemes}
@@ -352,7 +352,7 @@ only if the depth of $F$ is less than the scheme's maximum allowed depth.
 
 The bottleneck to achieving an FHE scheme is the introduction of noise in the encryption function. A circuit $F$ with a big enough number of multiplications, for example, might not satisfy the correctness property because of the noise's size compared to the original message.
 
-Then a process called \textit{bootstrap} is introduced \cite{gentry2009fully}, which is a way of reducing the ciphertext noise by homomorphically evaluating the own scheme decryption function, producing a new ciphertext that encrypts the same message with less noise. 
+Then a process called \textit{bootstrap} (or recrypt) is introduced \cite{gentry2009fully}, which is a way of reducing the ciphertext noise by homomorphically evaluating the own scheme decryption function, producing a new ciphertext that encrypts the same message with less noise. 
 
 To achieve a fully homomorphic scheme out of a somewhat homomorphic one, it's enough to prove that the scheme is ``bootstrappable'', i.e., that it can correctly evaluate circuits that are deeper than its own decryption circuit. 
 
@@ -369,15 +369,15 @@ Figure \ref{fig:bootstrapping} illustrates this procedure through the blue arrow
 
 The $\enc$ function might introduce some noise to $c_2$, but as long as this noise is less than the one associated with $c$, we succeed in refreshing ciphertext noise. 
 
-
 % https://q.uiver.app/?q=WzAsNCxbMCwyLCJjIl0sWzAsMCwiY14qIl0sWzMsMiwibSJdLFszLDAsImNfMiJdLFswLDEsIlxcb3BlcmF0b3JuYW1le0VuY30oXFxvcGVyYXRvcm5hbWV7cGt9XzIsXFxjZG90KSIsMCx7InN0eWxlIjp7ImJvZHkiOnsibmFtZSI6ImRhc2hlZCJ9fX1dLFswLDIsIlxcb3BlcmF0b3JuYW1le0RlY30oXFxvcGVyYXRvcm5hbWV7c2t9LFxcY2RvdCkiLDJdLFsxLDMsIlxcb3BlcmF0b3JuYW1le0V2YWx9KFxcb3BlcmF0b3JuYW1le3BrfV8yLFxcb3BlcmF0b3JuYW1le0RlY30sXFxvcGVyYXRvcm5hbWV7c2t9XiosXFxjZG90KSIsMCx7InN0eWxlIjp7ImJvZHkiOnsibmFtZSI6ImRhc2hlZCJ9fX1dLFszLDIsIlxcb3BlcmF0b3JuYW1le0RlY30oXFxvcGVyYXRvcm5hbWV7c2t9LFxcY2RvdCkiXV0=
-
 \begin{figure}[!htb]
     \centering
     \includegraphics[scale=0.9]{files/figures/bootstrapping.png}
     \caption{Bootstrapping procedure}
     \label{fig:bootstrapping}
 \end{figure}
+
+The SHE schemes proposed by Gentry were not originally bootstrappable because the decryption was too deep. The work then dedicates a lot of effort to minimize the depth of the decryption circuit, but the ability to bootstrap is only achieved by a technique called \textit{squashing}, where the encrypter starts the decryption process, giving partial hints to the decryptor. Although he could arrive at an FHE scheme, squashing introduced additional security requirements.
 
 \subsection{An integer scheme}
 \label{sub:int}
@@ -445,14 +445,19 @@ The security of the scheme is based on the hardness of the \textit{approximate g
 % \item relinelization
 % \item BGV differences
 % \end{alineas}
-% \subsection{Practical considerations}
-% \label{sub:practical}
-\section{Approximate Numbers Homomorphic Encryption}
+\subsection{Practical considerations}
+\label{sub:practical}
+An implementation of Gentry's scheme (using ideal lattices) was proposed in \cite{gentry_implementation}. They used a powerful cloud machine to benchmark the system: 64-bit quad-core Intel Xeon E5450 processor, 3GHz, with 24GB of RAM.
+
+Using $n=2^{15}$ as the lattice dimension (see Appendix \ref{appendixA}), a parameter that provides a high level of security, the scheme took $2.2$ hours for $\operatorname{KeyGen}$ and $31$ minutes for $\operatorname{Recrypt}$. The real bottleneck is the Recrypt algorithm since Keygen is executed only one time, but we need to bootstrap many times for evaluating deep functions, such as iterative algorithms for machine learning optimization. Although Gentry's work was a big mathematical breakthrough, making a practical FHE scheme remained an open problem. 
+
+\section{FHE over the complex numbers}
 \label{sec:ckks}
 
-- brief description about fixed point arithmetic? no 
-- the complex map 
-- give a broad overview and then in subsection describe codec and bootstrapping
+After Gentry's first paper, the research community focused on achieving computationally practical schemes. A lot of solutions came up with real improvements over the original construction. 
+% - brief description about fixed point arithmetic? no 
+% - the complex map 
+% - give a broad overview and then in subsection describe codec and bootstrapping
 
 \subsubsection{Encoding and Decoding}
 

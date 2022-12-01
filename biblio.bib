@@ -214,5 +214,48 @@ abstract="We suggest a method to construct a homomorphic encryption scheme for a
 isbn="978-3-319-70694-8"
 }
 
+@InProceedings{gentry_implementation,
+author="Gentry, Craig
+and Halevi, Shai",
+editor="Paterson, Kenneth G.",
+title="Implementing Gentry's Fully-Homomorphic Encryption Scheme",
+booktitle="Advances in Cryptology -- EUROCRYPT 2011",
+year="2011",
+publisher="Springer Berlin Heidelberg",
+address="Berlin, Heidelberg",
+pages="129--148",
+abstract="We describe a working implementation of a variant of Gentry's fully homomorphic encryption scheme (STOC 2009), similar to the variant used in an earlier implementation effort by Smart and Vercauteren (PKC 2010). Smart and Vercauteren implemented the underlying ``somewhat homomorphic'' scheme, but were not able to implement the bootstrapping functionality that is needed to get the complete scheme to work. We show a number of optimizations that allow us to implement all aspects of the scheme, including the bootstrapping functionality.",
+isbn="978-3-642-20465-4"
+}
+
+
+@misc{bgv,
+      author = {Zvika Brakerski and Craig Gentry and Vinod Vaikuntanathan},
+      title = {Fully Homomorphic Encryption without Bootstrapping},
+      howpublished = {Cryptology ePrint Archive, Paper 2011/277},
+      year = {2011},
+      note = {\url{https://eprint.iacr.org/2011/277}},
+      url = {https://eprint.iacr.org/2011/277}
+}
+
+@InProceedings{ckks,
+author="Cheon, Jung Hee
+and Kim, Andrey
+and Kim, Miran
+and Song, Yongsoo",
+editor="Takagi, Tsuyoshi
+and Peyrin, Thomas",
+title="Homomorphic Encryption for Arithmetic of Approximate Numbers",
+booktitle="Advances in Cryptology -- ASIACRYPT 2017",
+year="2017",
+publisher="Springer International Publishing",
+address="Cham",
+pages="409--437",
+abstract="We suggest a method to construct a homomorphic encryption scheme for approximate arithmetic. It supports an approximate addition and multiplication of encrypted messages, together with a new rescaling procedure for managing the magnitude of plaintext. This procedure truncates a ciphertext into a smaller modulus, which leads to rounding of plaintext. The main idea is to add a noise following significant figures which contain a main message. This noise is originally added to the plaintext for security, but considered to be a part of error occurring during approximate computations that is reduced along with plaintext by rescaling. As a result, our decryption structure outputs an approximate value of plaintext with a predetermined precision.",
+isbn="978-3-319-70694-8"
+}
+
+
+
 
 
