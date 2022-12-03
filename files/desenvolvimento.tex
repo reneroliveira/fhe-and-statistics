@@ -51,7 +51,7 @@ In the complex plane, this roots are distributed over the unitary circumference 
     \label{fig:roots_of_unity}
 \end{figure}
 
-\begin{definition}[Primitive roots of unity]\cite{brilliant}
+\begin{definition}[Primitive roots of unity]\cite{brilliant}\label{def:prim_roots}
 The $n^{th}$ primitive roots of unity are:
 $$\{\zeta \in \mathbb C;\zeta^n=1\text{ and }\zeta^k\neq1,\forall ~ k<n \},$$
 for positive integers $k$. They are the subset of $n^{th}$ roots of unity which are not $k^{th}$ roots of unity, for all $k<n$. They can be alternatively defined as:
@@ -456,22 +456,28 @@ The research community has focused on achieving computationally practical scheme
 % - brief description about fixed point arithmetic? no 
 % - the complex map 
 % - give a broad overview and then in subsection describe codec and bootstrapping
-The message $m$ of the HEAAN scheme will live in the plaintext of the cyclotomic ring $\mathcal{R}_{q}=\Z_q[X]/(X^N+1)$ with $N$ being a power of two; the ciphertext will be tuples in $\mathcal{R}_q\times \mathcal{R}_q$. This can be quite contradicting to the proposal of the scheme for supporting complex numbers, but this can be reached using a clever encoding/decoding procedure that can map a complex vector $z\in \mathbb C^{N/2}$ to a polynomial $m\in \mathcal{R}_q$, and vice-versa. This allows us to perform operations in a SIMD\footnote{Single instruction, multiple data}, saving computational costs. 
+The message $m$ of the HEAAN scheme will live in the plaintext of the cyclotomic ring $\mathcal{R}_{q}=\Z_q[X]/(X^N+1)$ with $N$ being a power of two; the ciphertext will be tuples in $\mathcal{R}_q\times \mathcal{R}_q$. This can be quite contradicting to the proposal of the scheme for supporting complex numbers, but this can be reached using a clever encoding/decoding procedure that can map a complex vector $\boldsymbol z\in \mathbb C^{N/2}$ to a polynomial $m\in \mathcal{R}_q$, and vice-versa. This allows us to perform operations in a SIMD\footnote{Single instruction, multiple data}, saving computational costs. Figure \ref{fig:ckks_overview} outlines the process of how CKKS computes a function over a complex vector.
+\begin{figure}[!htb]
+    \centering
+    \includegraphics[]{files/figures/ckks_overview.png}
+    \caption{CKKS scheme overview. Adapted \cite{openmined}}
+    \label{fig:ckks_overview}
+\end{figure}
 
 HEAAN is an approximate scheme that doesn't satisfy the identity correctness property, $\dec(\sk,\enc(\pk,m))=m$. Instead, one will get $\dec(\sk,\enc(\pk,m))=m+e$, and we can guarantee that $e$ is small enough compared to $m$ so that we recover an approximate decryption of the original message. 
-
 % https://q.uiver.app/?q=WzAsNixbMCwwLCJcXGJvbGRzeW1ib2x7en1cXFxcIFxcaW5cXG1hdGhiYiBDXntOLzJ9Il0sWzIsMCwibShYKVxcXFwgXFxpbiBcXG1hdGhjYWwgUl9xIl0sWzQsMCwiYz0oY18xKFgpLGNfMihYKSlcXFxcIFxcaW5cXG1hdGhjYWwgUl9xXjIiXSxbNCwzLCJjJz0gXFxvcGVyYXRvcm5hbWV7RXZhbH0oZixjKVxcXFwgXFxpblxcbWF0aGNhbHtSfV9xXjIiXSxbMiwzLCJtJyhYKT1mKG0pXFxcXCBcXGluIFxcbWF0aGNhbHtSfV9xIl0sWzAsMywiXFxib2xkc3ltYm9sIHonPWYoXFxib2xkc3ltYm9sIHopXFxcXCBcXGluIFxcbWF0aGJie0N9XntOLzJ9Il0sWzAsMSwiXFxvcGVyYXRvcm5hbWV7RW5jb2RlfSJdLFsxLDIsIlxcb3BlcmF0b3JuYW1le0VuY3J5cHR9Il0sWzIsMywiXFxvcGVyYXRvcm5hbWV7Q29tcHV0ZX0gZiJdLFszLDQsIlxcb3BlcmF0b3JuYW1le0RlY3J5cHR9Il0sWzQsNSwiXFxvcGVyYXRvcm5hbWV7RGVjb2RlfSJdXQ==
-\[\begin{tikzcd}
-	{\boldsymbol{z}\\ \in\mathbb C^{N/2}} && {m(X)\\ \in \mathcal R_q} && {c=(c_1(X),c_2(X))\\ \in\mathcal R_q^2} \\
-	\\
-	\\
-	{\boldsymbol z'=f(\boldsymbol z)\\ \in \mathbb{C}^{N/2}} && {m'(X)=f(m)\\ \in \mathcal{R}_q} && {c'= \operatorname{Eval}(f,c)\\ \in\mathcal{R}_q^2}
-	\arrow["{\operatorname{Encode}}", from=1-1, to=1-3]
-	\arrow["{\operatorname{Encrypt}}", from=1-3, to=1-5]
-	\arrow["{\operatorname{Compute} f}", from=1-5, to=4-5]
-	\arrow["{\operatorname{Decrypt}}", from=4-5, to=4-3]
-	\arrow["{\operatorname{Decode}}", from=4-3, to=4-1]
-\end{tikzcd}\]
+% \[\begin{tikzcd}
+% 	{\boldsymbol{z}\\ \in\mathbb C^{N/2}} && {m(X)\\ \in \mathcal R_q} && {c=(c_1(X),c_2(X))\\ \in\mathcal R_q^2} \\
+% 	\\
+% 	\\
+% 	{\boldsymbol z'=f(\boldsymbol z)\\ \in \mathbb{C}^{N/2}} && {m'(X)=f(m)\\ \in \mathcal{R}_q} && {c'= \operatorname{Eval}(f,c)\\ \in\mathcal{R}_q^2}
+% 	\arrow["{\operatorname{Encode}}", from=1-1, to=1-3]
+% 	\arrow["{\operatorname{Encrypt}}", from=1-3, to=1-5]
+% 	\arrow["{\operatorname{Compute} f}", from=1-5, to=4-5]
+% 	\arrow["{\operatorname{Decrypt}}", from=4-5, to=4-3]
+% 	\arrow["{\operatorname{Decode}}", from=4-3, to=4-1]
+% \end{tikzcd}\]
+
 The scheme requires a process called \textit{relinearization} after each multiplication. Directly multiplying two ciphertexts $\boldsymbol c =(c_1,c_2)$ and $\boldsymbol c'=(c'_1,c'_2)$ yields a vector in $(d_0,d_1,d_2)\in \mathcal{R}_q^3$ where:
 \begin{align*}
     d_0 & = c_1\cdot c'_1\\
@@ -484,7 +490,22 @@ The original HEAAN scheme was not fully homomorphic but a somewhat homomorphic o
 
 \subsection{Encoding and Decoding}
 
+The plaintext space, as we described before, is the cyclotomic ring $\Z[X]/(\Phi_M(X))$, with $M=2N$ and $N$ power of two. Our goal is to map complex $N/2$-dimensional\footnote{} vectors $\boldsymbol z\in\mathbb C^{N/2}$ into elements of the ring (encoding) and vice-versa (decoding).
 
+We begin with the \textit{canonical embedding map}:
+\begin{align*}
+    \sigma &: \mathbb{C}[X]/(X^N+1)\longrightarrow\mathbb C ^N\\
+    m(X)&\longrightarrow (m(\zeta_M),m(\zeta_M^3),\ldots,m(\zeta_M^{2N-1})),\\
+    &\text{with }\zeta_M=\exp(2\pi i/M)
+\end{align*}
+
+The above map takes a polynomial with complex coefficients and evaluates it in the $M^{th}$ primitive roots of unity. Since $M$ is a power of two, from Definition \ref{def:prim_roots}, the primitive roots will be the $\zeta_M^k$ for $1\leq k\leq M$ with $\gcd(k, M)=1$, hence, $k$ ranges through the first $N$ odd numbers. The output is indeed a $N$- dimensional complex vector since both the polynomial coefficients and the primitive roots are complex.
+
+An interesting fact is that $\sigma$ is an isomorphism, and we can use its inverse $\sigma^{-1}$ to encode a vector in $\boldsymbol{z}\in\mathbb C^N$ to a polynomial in $m(X)\in\C[X]/(\Phi_M(X))$. Recall that $m(X)$ can be written as $m(X)=\sum_{j=0}^{N-1}\alpha_jX^{j}$, so to construct $\sigma^{-1}$ we must be able to take $\boldsymbol z= (z_1,\ldots,z_N)$ and return the coefficients $(\alpha_j)_{j=0,1,\ldots,N-1}$ such that $(m(\zeta_M^1),m(\zeta_M^3),\ldots,m(\zeta_M^{2N-1})=(z_1,\ldots,z_N)$. This can be viewed as a linear system:
+\begin{align*}
+    \displaystyle m(\zeta_M^{2k-1})&=\sum_{j=0}^{N-1}\alpha_j(\zeta_M^{2k-1})^j=z_k\\
+    &\text{for }k=1,2,\ldots,N
+\end{align*}
 
 \subsection{Encryption, Decryption, and Relinearization}
 
