@@ -4,12 +4,29 @@
   year={2007},
   publisher={Springer Science \& Business Media}
 }
-@book{gentry2009fully,
-  title={A Fully Homomorphic Encryption Scheme},
-  author={Gentry, Craig},
-  year={2009},
-  publisher={Stanford university}
+ @phdthesis{gentry2009fully,
+     author = {Craig Gentry},
+     title = {A fully homomorphic encryption scheme},
+     school = {Stanford University},
+     year = 2009,
+     note = {\url{crypto.stanford.edu/craig}}
 }
+@InProceedings{gsw,
+author="Gentry, Craig
+and Sahai, Amit
+and Waters, Brent",
+editor="Canetti, Ran
+and Garay, Juan A.",
+title="Homomorphic Encryption from Learning with Errors: Conceptually-Simpler, Asymptotically-Faster, Attribute-Based",
+booktitle="Advances in Cryptology -- CRYPTO 2013",
+year="2013",
+publisher="Springer Berlin Heidelberg",
+address="Berlin, Heidelberg",
+pages="75--92",
+abstract="We describe a comparatively simple fully homomorphic encryption (FHE) scheme based on the learning with errors (LWE) problem. In previous LWE-based FHE schemes, multiplication is a complicated and expensive step involving ``relinearization''. In this work, we propose a new technique for building FHE schemes that we call the approximate eigenvector method. In our scheme, for the most part, homomorphic addition and multiplication are just matrix addition and multiplication. This makes our scheme both asymptotically faster and (we believe) easier to understand.",
+isbn="978-3-642-40041-4"
+}
+
 
 @book{stan16,
 title = {A Fully Homomorphic Encryption scheme},
@@ -238,22 +255,15 @@ isbn="978-3-642-20465-4"
       url = {https://eprint.iacr.org/2011/277}
 }
 
-@InProceedings{ckks,
-author="Cheon, Jung Hee
-and Kim, Andrey
-and Kim, Miran
-and Song, Yongsoo",
-editor="Takagi, Tsuyoshi
-and Peyrin, Thomas",
-title="Homomorphic Encryption for Arithmetic of Approximate Numbers",
-booktitle="Advances in Cryptology -- ASIACRYPT 2017",
-year="2017",
-publisher="Springer International Publishing",
-address="Cham",
-pages="409--437",
-abstract="We suggest a method to construct a homomorphic encryption scheme for approximate arithmetic. It supports an approximate addition and multiplication of encrypted messages, together with a new rescaling procedure for managing the magnitude of plaintext. This procedure truncates a ciphertext into a smaller modulus, which leads to rounding of plaintext. The main idea is to add a noise following significant figures which contain a main message. This noise is originally added to the plaintext for security, but considered to be a part of error occurring during approximate computations that is reduced along with plaintext by rescaling. As a result, our decryption structure outputs an approximate value of plaintext with a predetermined precision.",
-isbn="978-3-319-70694-8"
-}
+@techreport{standards,
+ author = {Martin Albrecht and Melissa Chase and Hao Chen and Jintai Ding and Shafi Goldwasser and Sergey Gorbunov and Shai Halevi and Jeffrey Hoffstein and Kim Laine and Kristin Lauter and Satya Lokam and Daniele Micciancio and Dustin Moody and Travis Morrison and Amit Sahai and Vinod Vaikuntanathan},
+ title = {Homomorphic Encryption Security Standard},
+ institution= {HomomorphicEncryption.org},
+ publisher = {HomomorphicEncryption.org},
+ address = {Toronto, Canada},
+ year = {2018},
+ month = {November}
+ }
 
 
 

@@ -24,7 +24,7 @@ $$\mathbf t\bmod \mathbf B=\mathbf t-\mathbf B\cdot\lfloor{\mathbf B}^{-1}\cdot\
 where $\lfloor.\rceil$ round the entry to the closest integer. \cite{stan16}
 \end{proposition}
 
-\section{An abstract construction}
+\section{Abstract construction}
 Gentry \cite{gentry2009fully} proposes an abstract scheme before making reference to ideal lattices. We need the following components:
 
 \begin{itemize}
@@ -36,7 +36,7 @@ Gentry \cite{gentry2009fully} proposes an abstract scheme before making referenc
 
 The scheme can be proved secure if we use the function $\operatorname{Samp}(\mathbf B_I,x)=x+r\times s$, where $r$ is chosen randomly from $R$, $I$ is a principal ideal and $s$ its generator.
 
-Moreover, we assume that for every $\mathbf t \in R$, and a given basis $\mathbf B_M$ of an ideal $M\subset R$, there exists an unique representative $\mathbf t \bmod {\mathbf B_M}$, that can be efficiently computed.
+Moreover, we assume that for every $\mathbf t \in R$, and a given basis $\mathbf B_M$ of an ideal $M\subset R$, there exists a unique representative $\mathbf t \bmod {\mathbf B_M}$, that can be efficiently computed.
 
 Then we can construct a (somewhat) homomorphic encryption scheme, using the functions $\operatorname{KeyGen}$, $\enc$, $\dec$, and $\eval$:
 \begin{itemize}
@@ -57,7 +57,7 @@ $$\eval(\operatorname{pk},F,\Psi)=g(F)(\Psi)\bmod\mathbf B_J^{pk},$$
 
 where $g(F)$ is the generalized circuit that replaces $\operatorname{Add}_{\mathbf{B_I}}$ and $\operatorname{Mult}_{\mathbf{B_I}}$ by ``$+$'' and ``$\times$'' operations of the ring $R$.
 
-Its not trivial that correctness property (\ref{eq:correctness}). In fact, it holds only for a specific group of circuits.
+It's not trivial that correctness property (\ref{eq:correctness}). In fact, it holds only for a specific group of circuits.
 
 Let's define $X_{Enc}$ as the image of $\operatorname{Samp}$ and $X_{Dec}=R\bmod\mathbf{B_J^{sk}}$, i.e, the set of indistinguishable representatives of cosets of $J$.
 
@@ -66,7 +66,7 @@ $$\{F:\forall (x_1,\ldots,x_n)\in X_{Enc}, g(F)(x_1,\ldots,x_n)\in X_{Dec}\},$$
 
 i.e., the set of $\bmod$-$\mathbf B_I$ circuits such that its generalization is in $X_{Dec}$ when the input is in $X_{Enc}$. For the permitted circuits, one can prove that homomorphic decryption works correctly.
 
-\section{A concrete construction using ideal lattices}
+\section{Concrete construction using ideal lattices}
 
 Let $f\in\mathbb{Z}[x]$ be a monic polynomial of degree $n$ and define the ring:
 $$R=\mathbb{Z}[x]/(f)$$
@@ -116,7 +116,7 @@ It's desirable to maximize $r_{Dec}$, and minimize $r_{Enc}$ and $\gamma_{Mult}(
 Also, by choosing $R=\mathbb{Z}[x]/(f)$ with $f(x)=x^n-1$, then it can be proved that:
 $$\gamma_{Mult}(R)\leq\sqrt{n}$$
 
-Now we'll prove that our SHE scheme correctly decrypts a \textit{valid cyphertext} (a cyphertext that can be outputed by $\enc$ or $\eval$).
+Now we'll prove that our SHE scheme correctly decrypts a \textit{valid cyphertext} (a ciphertext that can be outputed by $\enc$ or $\eval$).
 
 
 \begin{theorem}[\textbf{Identity correctness}] 

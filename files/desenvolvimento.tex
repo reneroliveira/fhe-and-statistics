@@ -1,7 +1,7 @@
 \chapter{Algebraic Review}
 \label{ch:algebra}
 
-In this chapter we shall discuss algebraic theoretical background that grounds cryptography schemes.
+In this chapter, we shall discuss the algebraic theoretical background that grounds cryptography schemes.
 
 
 \section{Basic structures}
@@ -227,7 +227,7 @@ Now that we have computationally complex challenges, the next step is, based on 
 \begin{definition}[Learning with Errors - LWE] Given an integer $n$, a prime integer $q$ such that\footnote{$\poly(n)$ denotes a polynomial function of $n$.} $2\leq q\leq \poly(n)$ and a distribution $\chi$ over $\Z_q$. Fix $\bds\in \Z_q^n$, the Search $\operatorname{LWE}_{n,q,\chi}$ problem is to recover $\boldsymbol s$, given observations $(\bda_i,b_i)$, where\footnote{Notation $x\xlongleftarrow[]{\chi}S$, means $x$ were drawn from distribution $\chi$ over the set $S$, and $\mathcal{U}$ is the uniform distribution}:
 \begin{align*}
     \bda_i&\xlongleftarrow[]{\mathcal U}\Z_q^n\\
-    b_i &= \langle \bda_i,\bds\rangle + e_i\\
+    b_i &= \langle \bda_i,\bds\rangle + e_i~(\bmod q)\\
     e_i&\xlongleftarrow[]{\chi}\Z_q
 \end{align*}
 The Decision $\operatorname{LWE}_{n,q,\chi}$ is the problem of distinguishing between the distribution of $(\bda_i,b_i)$ gotten from the above procedure and the uniform distribution over $\Z_q^{n+1}$.
@@ -238,23 +238,21 @@ LWE provides a nice setup for private key encryption since one can expose $(\bda
 
 In our main FHE construction, the scheme is based on a variant of LWE:
 
-\begin{definition}
-[Ring Learning with Errors - RLWE] Set integers $n,q$, with $n$ being a power of two, and $2\leq q \leq \poly(n)$. Let $f(x)=x^n+1$ (the $2n$-th cyclotomic polynomial), define $R=\Z[x]/\langle f(x)\rangle$, a distribution $\chi$ over $R$ and $R_q=R/\langle q\rangle =\Z_q/\langle f(x)\rangle$ which can be represented by polynomials with integer coefficients wrapped by $q$ and with degree up to $n-1$.
+\begin{definition}\label{def:rlwe}
+[Ring Learning with Errors - RLWE] Set integers $n,q$, with $n$ being a power of two, and $2\leq q \leq \poly(n)$. Let $f(x)=x^n+1$ (the $2n$-th cyclotomic polynomial), define $R=\Z[X]/( f(X))$, a distribution $\chi$ over $R$ and $R_q=R/(q) =\Z_q[X]/(f(X))$ which can be represented by polynomials with integer coefficients wrapped by $q$ and with degree up to $n-1$.
 
 Let $s=s(x)\in R_q$ be an element chosen uniformly from the ring. The Search $\operatorname{RLWE}_{n,q,\chi}$ problem is to recover $s$ given a set of pairs $(a_i,b_i)\in R_q^2$, with
 \begin{align*}
     a_i&\xlongleftarrow[]{\mathcal U}R_q\\
-    b_i &= a_i\cdot s + e_i\\
+    b_i &= a_i\cdot s + e_i~(\bmod q)\\
     e_i&\xlongleftarrow[]{\chi}R
 \end{align*}
 Analogously with LWE, we define Decision $\operatorname{RLWE}_{n,q,\chi}$ as the problem of distinguishing the distribution of the above pairs from a uniform distribution over $R_q^2$. 
 \end{definition}
-
-An observation in both LWE and RLWE is that, in practice, the distribution $\chi$ of $e_i$ must yield small enough errors compared to $q$. That's why we omit $\bmod q$ after the equation of $b_i$'s. Such a thing would guarantee that $b_i$ is an element of $\Z_q$ or $R_q$.
-
+% An observation in both LWE and RLWE is that, in practice, the distribution $\chi$ of $e_i$ must yield small enough errors compared to $q$. That's why we omit $\bmod q$ after the equation of $b_i$'s. Such a thing would guarantee that $b_i$ is an element of $\Z_q$ or $R_q$.
 The Search RLWE can also be reduced to Decision RLWE. Moreover, under some assumptions over the parameters $n,q,\chi$, which we won't state here, an efficient algorithm for Decision $\operatorname{RLWE}_{n,q,\chi}$ implies an efficient algorithm for solving SVP \cite{lyubashevsky10}.
 
-The choice of $f(x)$ being a power of two cyclotomic polynomial is purely technical; in general, $f(x)$ could be any cyclotomic polynomial, and all the theory would still holds. We shall further want to multiply two instances of the cyclotomic ring, and there is a method based on Fast Fourier Transform to perform such task \cite{fftmult}. But choosing specifically $f(x)=x^n+1$ admits optimized implementations, and faster implementations \cite{swifft}.
+The choice of $f(x)$ being a power of two cyclotomic polynomial is purely technical; in general, $f(x)$ could be any cyclotomic polynomial, and all the theory would still holds. We shall further want to multiply two instances of the cyclotomic ring, and there is a method based on Fast Fourier Transform to perform such task \cite{fftmult}. But choosing specifically $f(x)=x^n+1$ admits optimized and faster implementations \cite{swifft}.
 
 
 \chapter{Fully Homomorphic Encryption}
@@ -445,21 +443,36 @@ The security of the scheme is based on the hardness of the \textit{approximate g
 % \item relinelization
 % \item BGV differences
 % \end{alineas}
-\subsection{Practical considerations}
+\subsection{Practical considerations and further research}
 \label{sub:practical}
 An implementation of Gentry's scheme (using ideal lattices) was proposed in \cite{gentry_implementation}. They used a powerful cloud machine to benchmark the system: 64-bit quad-core Intel Xeon E5450 processor, 3GHz, with 24GB of RAM.
 
 Using $n=2^{15}$ as the lattice dimension (see Appendix \ref{appendixA}), a parameter that provides a high level of security, the scheme took $2.2$ hours for $\operatorname{KeyGen}$ and $31$ minutes for $\operatorname{Recrypt}$. The real bottleneck is the Recrypt algorithm since Keygen is executed only one time, but we need to bootstrap many times for evaluating deep functions, such as iterative algorithms for machine learning optimization. Although Gentry's work was a big mathematical breakthrough, making a practical FHE scheme remained an open problem. 
 
+The research community has focused on achieving computationally practical schemes ever since. In the decade after 2009, a lot of solutions came up with real improvements over the original construction. A standardization was proposed \cite{standards} to discuss security, implementation API, and applications, listing some important schemes such as BFV \cite{bfv12}, BGV \cite{bgv}, and GSW \cite{gsw}.  We will present the CKKS/HEAAN\footnote{HEAAN is the initials of the paper title "Homomorphic Encryption for Arithmetic of Approximate Numbers".\\CKKS stands for the author's surname initials: Jung H. Cheon, Andrey Kim, Miran Kim, and Yongsoo Song } scheme \cite{ckks17}, which is considered the most appropriate for machine learning applications since it has a native solution for supporting complex numbers (so, also real), while previous schemes used boolean or integer based encoding. Although it's not listed on 2018 standards, the scheme is a candidate for future versions of the document.
+
 \section{FHE over the complex numbers}
 \label{sec:ckks}
-
-After Gentry's first paper, the research community focused on achieving computationally practical schemes. A lot of solutions came up with real improvements over the original construction. 
 % - brief description about fixed point arithmetic? no 
 % - the complex map 
 % - give a broad overview and then in subsection describe codec and bootstrapping
+The message $m$ of the HEAAN scheme will live in the plaintext of the cyclotomic ring $R_{q}=\Z_q[X]/(X^N+1)$ with $N$ being a power of tho; the ciphertext will be tuples in $R_q\times R_q$. This can be quite contradicting to the proposal of the scheme for supporting complex numbers, but this can be reached using a clever encoding/decoding procedure that can map a complex vector $z\in \mathbb C^{N/2}$ to a polynomial $m\in R_q$, and vice-versa. This allows us to perform operations in a SIMD\footnote{Single instruction, multiple data}, saving computational costs. 
 
-\subsubsection{Encoding and Decoding}
+HEAAN is an approximate scheme that doesn't satisfy the identity correctness property, $\dec(\sk,\enc(\pk,m))=m$. Instead, one will get $\dec(\sk,\enc(\pk,m))=m+e$, and we can guarantee that $e$ is small enough compared to $m$ so that we recover an approximate decryption of the original message. 
+
+The scheme requires a process called \textit{relinearization} after each multiplication. Directly multiplying two ciphertexts $\boldsymbol c =(c_1,c_2)$ and $\boldsymbol c'=(c'_1,c'_2)$ yields a vector in $(d_0,d_1,d_2)\in R_q^3$ where:
+\begin{align*}
+    d_0 & = c_1\cdot c'_1\\
+    d_1 & = c_1\cdot c'_2 + c_2\cdot c'_1\\
+    d_2 & = c_2\cdot c'_2
+\end{align*}
+The goal of relinearization is to transform the above triple into an equivalent tuple, i.e., a tuple that approximately preserves the decryption correctness. This process is also used in BFV and BGV schemes; although is quite expansive and introduces additional noise, it avoids ciphertext size growth, keeping it as a two-dimensional vector of polynomials.
+
+The boostrapping 
+\subsection{Encoding and Decoding}
+
+
+\subsection{Encryption, Decryption, and Relinearization}
 
 
 \subsection{Approximate Bootstrapping}
@@ -470,5 +483,5 @@ After Gentry's first paper, the research community focused on achieving computat
 \section{Data Applications}
 
 
-\label{ch:algebra}
+
 
