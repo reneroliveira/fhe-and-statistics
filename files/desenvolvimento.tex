@@ -22,19 +22,80 @@ A non-empty set G is called a group under the operation $*$, if it satisfies the
 \end{alineas}
 \end{definition}
 
-A set $R$ is called a (commutative) \textbf{Ring} if it has two operations: addition ($+$) and multiplication ($\times$) satisfying the following properties:
-
+\begin{definition}[Subgroup]
+Let $(G,\cdot)$ be a group, $H\subseteq G$ is a subgroup of $G$ if it satisfies the following:
 \begin{itemize}
+    \item $H\neq\varnothing$;
+    \item $H$ is closed taking products: $a,b\in H\Rightarrow a\cdot b\in H$;
+    \item $H$ is closed under taking inverses: $a\in H\Rightarrow a^{-1}\in H$.
+\end{itemize}
+Associativity is inherited by $G$ and the existence of identity element can be deduced by the above properties \cite{omn}.
+\end{definition}
+
+\begin{definition}[Ring]
+    A set $R$ is called a (commutative) \textit{ring} if it has two operations: addition ($+$) and multiplication ($\times$) satisfying the following properties:
+
+\begin{alineas}
     \item $R$ is an abelian group under addition
     \item (multiplicative associativity) $(a\times b)\times c = a\times (b\times c)$, for all $a,~b,~c\in R$ ;
     \item (distributivity) $a\times (b+c)=a\times b + a\times c$ for all $a,~b,~c\in R$;
     \item (multiplicative commutativity) $a\times b=b\times a$ for all $a,~b\in R$;
-    \item (multiplicative inverse) There exists an element $1$, such that, $1\times a = a\times 1 = a,$ for all $a\in R$.
-\end{itemize}
+    \item (multiplicative identity) There exists an element $1$, such that, $1\times a = a\times 1 = a,$ for all $a\in R$.
+\end{alineas}
 
-\section{Polynomial Rings}
+Property d) is not mandatory for general non-commutative rings, but in this text, the term ``ring'' indicates a commutative one. Some examples of rings: $\mathbb{Z}$, ring of integers; $\mathbb{Z}_n$, the integers $\bmod$-$n$ and $\mathbb{Z}[X]$, set of polynomial with integer coefficients. The latter is a special ring that will be the base of our encryption schemes.
+\end{definition}
 
-\section{Cyclotomic polynomials and its properties}
+\begin{definition}[Ideal]
+    Given a ring $R$, a subset $I\subseteq R$ is called an \textit{ideal} of $R$ if its an additive subgroup of $R$ and satisfies:
+$$r\times i \in I\text{ for all } r\in R,~i\in I$$
+\end{definition}
+Every ideal has a set of generators $G=\{g_1,\ldots,g_n\}$, such that 
+$$I=(G)=\Big\{\sum_{i=1}^{n}g_ir_i|r_i\in R\Big\}$$
+$G$ is called a \textit{basis} of $I$ if its elements are linearly independent. $I$ is a \textit{principal ideal} if $G$ has just a single element.
+
+Two ideals $I$ and $J$ are called \textit{relatively prime ideals} of a ring $R$ if $I+J=R$, where $I+J=\{i+j|i\in I,j\in J\}$.
+
+An example of (principal) ideal of the ring of integers is $(2)=\{2r|r\in\mathbb{Z}\}$, so-called even numbers. One can easily verify that it satisfies all the above properties.
+
+\begin{definition}[Fields]
+    A Field $F$ is a commutative ring, where for every non-zero element $a\in F$ there exists $a^{-1}\in F$ such that $aa^{-1}=1$, being $1$ the ring unity element.
+
+    $\mathbb{Q},\mathbb{R}$ and $\C$ are examples of fields.
+\end{definition}
+
+\section{Homomorphisms and Quotient Rings}
+\begin{definition}[Ring homomorphism] Let $R$ and $S$ be rings. A map $\varphi:R\to S$ is called a ring homomorphism if it preserves addition/multiplication operations and the unity element:
+\begin{align*}
+    \varphi(a+b)&=\varphi(a)+\varphi(b)\\
+    \varphi(a\times b)&=\varphi(a)\times \varphi(b)\\
+    \varphi(1_R)&=1_S
+\end{align*}
+Similarly, we can define group homomorphisms that will preserve their unique underlying operation.
+\end{definition}
+Some ring homomorphisms examples:
+\begin{alineas}
+    \item Integer modular reduction operation:
+\begin{align*}
+    \varphi&:\Z\to\Z_n\\
+    \varphi(a)&=a(\bmod~n)
+\end{align*}
+
+\item Polynomial evaluation at $a\in R$:
+\begin{align*}
+    \varphi_a&:R[X]\to R\\
+    \varphi_a(p(X))&=p(a),
+\end{align*} where $R[X]$ is the set of polynomials with coefficients in a ring $R$
+\end{alineas}
+
+\begin{definition}[Isomorphism]
+    A map $\varphi:R\to S$ is called an isomorphism if it is a bijective homomorphism. In this case, we denote $R\cong S$
+\end{definition}
+
+\begin{definition}[Cosets]
+    
+\end{definition}
+\section{Cyclotomic polynomials}
 
 In this section, we define and review some properties of cyclotomic polynomials, which will play a central role in the homomorphic cryptography setup.
 
@@ -42,7 +103,7 @@ In this section, we define and review some properties of cyclotomic polynomials,
 $$\sqrt[n]1=\{\zeta_n^k;k=0,1,\ldots,n-1\},$$
 where\footnote{In Euler's notation $\exp{(i\theta)}=\cos\theta+i\cdot\sin\theta$} $\zeta_n=\exp{(2\pi i/n)}$
 \end{definition}
-In the complex plane, this roots are distributed over the unitary circumference and equally separated by an angle of $2\pi/n$. Figure \ref{fig:roots_of_unity} show the example of the $8^{th}$ roots of unity.
+In the complex plane, these roots are distributed over the unitary circumference and equally separated by an angle of $2\pi/n$. Figure \ref{fig:roots_of_unity} show the example of the $8^{th}$ roots of unity.
 
 \begin{figure}[!htb]
     \centering
@@ -478,7 +539,7 @@ HEAAN is an approximate scheme that doesn't satisfy the identity correctness pro
 % 	\arrow["{\operatorname{Decode}}", from=4-3, to=4-1]
 % \end{tikzcd}\]
 
-The scheme requires a process called \textit{relinearization} after each multiplication. Directly multiplying two ciphertexts $\boldsymbol c =(c_1,c_2)$ and $\boldsymbol c'=(c'_1,c'_2)$ yields a vector in $(d_0,d_1,d_2)\in \mathcal{R}_q^3$ where:
+The scheme requires a process called \textit{relinearization} after each multiplication, introduced by BFV scheme \cite{bfv12} and also used in CKKS. Directly multiplying two ciphertexts $\boldsymbol c =(c_1,c_2)$ and $\boldsymbol c'=(c'_1,c'_2)$ yields a vector in $(d_0,d_1,d_2)\in \mathcal{R}_q^3$ where:
 \begin{align*}
     d_0 & = c_1\cdot c'_1\\
     d_1 & = c_1\cdot c'_2 + c_2\cdot c'_1\\
@@ -490,7 +551,7 @@ The original HEAAN scheme was not fully homomorphic but a somewhat homomorphic o
 
 \subsection{Encoding and Decoding}
 
-The plaintext space, as we described before, is the cyclotomic ring $\Z[X]/(\Phi_M(X))$, with $M=2N$ and $N$ power of two. Our goal is to map complex $N/2$-dimensional\footnote{} vectors $\boldsymbol z\in\mathbb C^{N/2}$ into elements of the ring (encoding) and vice-versa (decoding).
+The plaintext space, as we described before, is the cyclotomic ring $\Z[X]/(\Phi_M(X))$, with $M=2N$ and $N$ power of two. Our goal is to map complex $N/2$-dimensional\footnote{The reason for this dimension will soon become clearer.} vectors $\boldsymbol z\in\mathbb C^{N/2}$ into elements of the ring (encoding) and vice-versa (decoding).
 
 We begin with the \textit{canonical embedding map}:
 \begin{align*}
@@ -538,14 +599,62 @@ where $\Z_M^*=\{k\in\Z;\gcd(k,M)=1\}=\{1,3,5,\ldots,2N-1\}$.
 
 The image $\sigma(\ring)$ is actually in $\Hr$. So, we can define the projection $\pi:\Hr\to\C^{N/2}$ that takes a $N$-dimensional vector in $\Hr$ and outputs a $N/2$-dimensional one, removing conjugates elements. Naturally, we also define $\pi^{-1}:\C^{N/2}\to\Hr$ that do the opposite, expanding a vector including the conjugates of its elements. Then, the decoding procedure will be $\pi\circ\sigma:\ring\to\C^{N/2}$.
 
-Encoding is not that trivial. Notice that the codomain of $\sigma^{-1}$ is $\C[X]/(X^N+1)$, so we cannot guarantee that the polynomials will have integer coefficients.
+Encoding is not that trivial. Notice that the codomain of $\sigma^{-1}$ is $\C[X]/(X^N+1)$, so we cannot guarantee that the polynomials will have integer coefficients. The first step is expanding $\boldsymbol z\in \C^{N/2}$ to $\Hr$ through $\pi^{-1}(\boldsymbol z)$, but to guarantee that applying $\sigma^{-1}$ will return an integer polynomial, we need to project $\pi^{-1}(\boldsymbol z)$ to the image $\sigma(\ring)$ using some rounding process $\lfloor \pi^{-1}(\boldsymbol z)\rceil_{\sigma(\ring)}$. This will approximate $\pi^{-1}$ to a close element in $\sigma(\ring)$ so that applying the inverse map results in a ring element. For more details about rounding techniques, refer to \cite{ckks17} and \cite{toolkit}. 
 
-
+For precision preservation purposes, the encoding procedure multiplies $\pi^{-1}(\boldsymbol z)$ by a predefined scaling factor $\Delta>1$. Then we define $\ecd$ (encode) and $\dcd$ (decode) functions as:
+\begin{align*}
+    \ecd&:\C^{N/2}\longrightarrow\ring\\
+    \ecd(\boldsymbol z;\Delta) &= \sigma^{-1}(\lfloor\Delta\cdot \pi^{-1}(\boldsymbol z)\rceil_{\sigma(\ring)})\\
+    \dcd&:\ring\longrightarrow\C^{N/2}\\
+    \dcd(m;\Delta)&=\pi\circ\sigma(\Delta^{-1}\cdot m)
+\end{align*}
 
 \subsection{Encryption, Decryption, and Relinearization}
 
+Now let's describe the concrete cryptographic primitives of the CKKS scheme. Fix an integer base $p$ and define $q_\ell = p^{\ell}q_0$ for some given $q_0\in\Z$. This is a \textit{leveled homomorphic encryption} scheme, with levels $0\leq\ell\leq L$; after each multiplication, we rescale the message to a lower level to control the size of noise. 
+
+The notation $\Z_q$ will choose the representatives from $\Z\cap (q/2,q/2]$, and $[ \cdot ]_q$ applied to a polynomial means wrapping its coefficients modulo $q$. $\lambda$ is a security parameter, which known attacks taking $\Omega(2^\lambda)$.
+
+The Discrete Gaussian distribution $\dg(\sigma^2)$ over the polynomial ring $\ring$ samples the coefficients from a discrete gaussian with variance $\sigma^2$ over $\Z^N$ \cite{ckks17}; We'll use this distribution for sampling RLWE errors. Another useful distribution is $\zo(\rho)$ over $\ring_2=\Z_2[X]/(X^N+1)$, i.e., the polynomials with degree up to $N-1$ with coefficients in $\{0,\pm1\}$. $\zo(\rho)$ draws $N$ samples with probability $1-\rho$ of being zero and $\rho/2$ of being $+1$ or $-1$, this becomes the coefficients of the polynomial in $\ring_2$.
+
+\begin{itemize}
+    \item $\operatorname{KeyGen}(\lambda)$- Given a security parameter $\lambda$, chooses cyclotomical dimension $M=M(\lambda)$, error standard deviation $\sigma=\sigma(\lambda)$ and an integer $P=P(\lambda)$.
+    
+    Samples $s\leftarrow \ring_2$, $a\xlongleftarrow[]{\mathcal U}\mathcal{R}_{q_L}$ and $e\xlongleftarrow[]{\dg(\sigma^2)}\ring$.
+    
+    Set $\sk = (1,s)$ and $\pk = (b,a)$, with $b=\modulo[q_L]{-a\cdot s +e}$. Security of public key exposure is guaranteed by RLWE (Def. \ref{def:rlwe}).
+
+    Samples $a'\xlongleftarrow[]{\mathcal U}\ring_{P\cdot q_L}$, $e'\xlongleftarrow[]{\dg(\sigma^2)}\ring$ and set the evaluation key $\evk=(b',a')$, with $b'=\modulo[P\cdot q_L]{-a'\cdot s+e'+P\cdot s^2}$. Its use will become clear soon, and security is also guaranteed by RLWE.
+
+    \item $\enc(\pk,m)=\modulo[q_L]{v\cdot\pk+(m+e_0,e_1)},$ where $v\xlongleftarrow[]{\zo(0.5)}\ring_2$, and $e_0,e_1\xlongleftarrow[]{\dg(\sigma^2)}\ring$. Notice that the ciphertext is a two-dimensional vector of polynomials in $\ring_{q_L}$.
+
+    \item $\dec(\sk,\boldsymbol c) = \modulo[q_\ell]{\langle\bd c,\sk\rangle}=\modulo[q_\ell]{c_1+c_2\cdot s}$, for $\boldsymbol c=(c_1,c_2)$ at level $\ell$.
+
+    \item $\eval(+,\bd c,\bd c')=\modulo[q_\ell]{\bd c+\bd c'}$, for $\bd c,\bd c'\in\ring_{q_\ell}^2$
+
+    \item $\eval(\evk,\times,\bd c,\bd c')=(d_0,d_1)+\lfloor P^{-1}\cdot d_2\cdot\evk\rceil(\bmod ~q_\ell)$, where for $\bd c=(c_1,c_2)$ and $\bd c'=(c'_1,c'_2)$, we have, as described before $(d_0,d_1,d_2)=(c_1\cdot c'_1,c_1\cdot c'_2 + c_2\cdot c'_1,c_2\cdot c'_2)$
+\end{itemize}
+
+The multiplication of ciphertexts is using a process called \textit{relinearizaton}, to reduce ciphertext dimension from $\ring^3_{q_\ell}$ to $\ring^2_{q_\ell}$. The goal is to find $(d_0^*,d_1^*)$ such that the decryption is approximately equivalent:
+\begin{align*}
+    \modulo[q_\ell]{d_0^*+d_1^*\cdot s}\approx\modulo[q_\ell]{d_0+d_1\cdot s+d_2\cdot s^2}
+\end{align*}
+In this case, $(d_0^*,d_1^*)=(d_0,d_1)+\lfloor P^{-1}\cdot d_2\cdot\evk\rceil(\bmod ~q_\ell)$ provides a ciphertext is an approximate valid encryption of the original multiplication of ciphertext \cite{ckks17}.
+
+The levels $L$ define the maximum multiplicative depth the scheme allows because, after each multiplication, we rescale the ciphertext from $\ell\to\ell-1$ using:
+$$\operatorname{Rescale_{\ell\to\ell'}}(\boldsymbol c) = \left\lfloor \dfrac{q_\ell'}{q_\ell}\bd c\right\rceil$$,
+
+The intuition behind it is that each ciphertext has an embedded noise added by the encryption process, and multiplication increases it (exponentially!). the rescaling process controls the noise, reducing the ciphertext modulus together with its built-in error. For more details, refer to \cite{rescale}.
 
 \subsection{Approximate Bootstrapping}
+
+To make an FHE scheme out of the previously described leveled homomorphic one, we need bootstrapping, i.e., be able to evaluate the decryption function $\dec(\sk,\boldsymbol c) = \modulo[q_\ell]{\langle\bd c,\sk\rangle}$ using the homomorphic scheme. While a direct approach to homomorphically compute it is still an open problem, an \textit{approximate bootstrapping} was proposed by \cite{ckks_bootstrapping}. The idea comes from the fact that modular reduction operation can be represented by a trigonometric function:
+\begin{align*}
+    \modulo{\langle\bd c,\sk\rangle} = \dfrac{q}{2\pi}\cdot \sin\left(\dfrac{2\pi}{q}\cdot\langle \bd c,\sk\rangle\right) + O(\varepsilon^3\cdot q),
+\end{align*} when $| \modulo{\langle\bd c,\sk\rangle}|\leq\varepsilon\cdot q$. CKKS scheme doesn't evaluate sine functions, it only permits additions and multiplications, so the authors used the Taylor expansion polynomial approximation, which can be represented as a composition of additions and multiplications.
+
+
+
 
 \chapter{Private Logistic Regression}
 \section{Statistical Review}
