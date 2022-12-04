@@ -501,11 +501,46 @@ We begin with the \textit{canonical embedding map}:
 
 The above map takes a polynomial with complex coefficients and evaluates it in the $M^{th}$ primitive roots of unity. Since $M$ is a power of two, from Definition \ref{def:prim_roots}, the primitive roots will be the $\zeta_M^k$ for $1\leq k\leq M$ with $\gcd(k, M)=1$, hence, $k$ ranges through the first $N$ odd numbers. The output is indeed a $N$- dimensional complex vector since both the polynomial coefficients and the primitive roots are complex.
 
-An interesting fact is that $\sigma$ is an isomorphism, and we can use its inverse $\sigma^{-1}$ to encode a vector in $\boldsymbol{z}\in\mathbb C^N$ to a polynomial in $m(X)\in\C[X]/(\Phi_M(X))$. Recall that $m(X)$ can be written as $m(X)=\sum_{j=0}^{N-1}\alpha_jX^{j}$, so to construct $\sigma^{-1}$ we must be able to take $\boldsymbol z= (z_1,\ldots,z_N)$ and return the coefficients $(\alpha_j)_{j=0,1,\ldots,N-1}$ such that $(m(\zeta_M^1),m(\zeta_M^3),\ldots,m(\zeta_M^{2N-1})=(z_1,\ldots,z_N)$. This can be viewed as a linear system:
+An interesting fact is that $\sigma$ is an isomorphism, and we can use its inverse $\sigma^{-1}$ to encode a vector in $\boldsymbol{z}\in\mathbb C^N$ to a polynomial in $m(X)\in\C[X]/(\Phi_M(X))$. Recall that $m(X)$ can be written as $m(X)=\sum_{j=0}^{N-1}\alpha_jX^{j}$; So to construct $\sigma^{-1}$ we must be able to take $\boldsymbol z= (z_1,\ldots,z_N))^T$ and return the coefficients $(\alpha_j)_{j=0,1,\ldots,N-1}$ such that $(m(\omega_1),m(\omega_3),\ldots,m(\omega_{2N-1}))^T=\boldsymbol z$, where $\omega_k=\zeta_M^k$ to simplify notation. This can be viewed as a linear system:
 \begin{align*}
-    \displaystyle m(\zeta_M^{2k-1})&=\sum_{j=0}^{N-1}\alpha_j(\zeta_M^{2k-1})^j=z_k\\
-    &\text{for }k=1,2,\ldots,N
+    \displaystyle m(\omega_{2k-1})&=\sum_{j=0}^{N-1}\alpha_j\omega_{2k-1}^j=z_k\\
+    &\text{for }k=1,2,\ldots,N;
 \end{align*}
+or as its matrix form:
+\begin{align*}
+    &~~~~~A\boldsymbol \alpha = \boldsymbol z,\\
+    \text{with }A = &\left[\begin{matrix}
+        1 & \omega_1 &\omega_1^2 &\ldots&\omega_1^{N-1}\\
+        1 & \omega_3 &\omega_3^2 &\ldots&\omega_3^{N-1}\\
+        1 & \omega_5 &\omega_5^2 &\ldots&\omega_5^{N-1}\\
+        \vdots & \vdots &\vdots &\ddots&\vdots\\
+        1 & \omega_{2N-1} &\omega_{2N-1}^2 &\ldots&\omega_{2N-1}^{N-1}
+    \end{matrix}\right]\text{ and }\boldsymbol\alpha = \left[\begin{matrix}\alpha_0\\ \alpha_1\\ \alpha_2\\\vdots\\ \alpha_{N-1}\end{matrix}\right]
+\end{align*}
+The matrix $A$ is the Vandermonde matrix for the primitive roots $\omega_k=\zeta_M^k$, and has a known inverse \cite{vandermonde}. Then, we can find the coefficients through $\boldsymbol\alpha = A^{-1}\boldsymbol z$, arriving to the inverse canonical embedding map:
+\begin{align*}
+\sigma^{-1}:~\mathbb{C}^N&\longrightarrow\C[X]/(X^N+1)\\
+    \sigma^{-1}(\boldsymbol z) &= m(X),
+\end{align*}
+
+with $m(X)=\sum_{j=0}^{N-1}\alpha_jX^j$ and $\alpha_j=(A^{-1})_j\boldsymbol z$
+
+The complex primitive roots are symmetrical conjugates. In Figure \ref{fig:roots_of_unity} for example $\omega_1=\overline{\omega_1}=\omega_7$, in general for the $M^{th}$ primitive roots, $\omega_j=\overline{\omega_{-j}}$, where $-j$ index is taken modulo $M$. Remember that, for decoding, the goal was to map $\ring=\Z[X]/(X^N+1)$ to $\C^{N/2}$. Until now, we have a map $\ring\to\C^{N}$. The image $\sigma(\ring)$ can be reduced to half its dimension, noticing that $m(\omega_j)=\overline{m(\omega_{-j})}:$
+\begin{align}
+    \overline{m(\omega_{-j})}&=\overline{\sum_{k=0}^{N-1}\alpha_k\omega_{-j}^k}\nonumber
+    =\sum_{k=0}^{N-1}\overline{\alpha_k\omega_{-j}^k}\nonumber\\
+    &=\sum_{k=0}^{N-1}\alpha_k\overline{\omega_{-j}^k}\label{eq:real_conj}\\
+    &=\sum_{k=0}^{N-1}\alpha_k\omega_{j}^k\nonumber=m(\omega_j)\nonumber
+\end{align}
+Equality \ref{eq:real_conj} holds because $\alpha_k\in\Z\subset\mathbb{R}$ so it does not affect the conjugate operator. Hence we have proved that the image $\sigma(\ring)$ are vectors in $\C^{N}$ whose coordinate $j$ are complex conjugates of coordinate $-j$. We can define now the subring $\mathbb{H}\subseteq \C^{N}$ as:
+$$\Hr=\{(z_j)_{j\in\Z_M^*};z_j=\overline{z_{-j}},~\forall j\in \Z_M^*\},$$
+where $\Z_M^*=\{k\in\Z;\gcd(k,M)=1\}=\{1,3,5,\ldots,2N-1\}$. 
+
+The image $\sigma(\ring)$ is actually in $\Hr$. So, we can define the projection $\pi:\Hr\to\C^{N/2}$ that takes a $N$-dimensional vector in $\Hr$ and outputs a $N/2$-dimensional one, removing conjugates elements. Naturally, we also define $\pi^{-1}:\C^{N/2}\to\Hr$ that do the opposite, expanding a vector including the conjugates of its elements. Then, the decoding procedure will be $\pi\circ\sigma:\ring\to\C^{N/2}$.
+
+Encoding is not that trivial. Notice that the codomain of $\sigma^{-1}$ is $\C[X]/(X^N+1)$, so we cannot guarantee that the polynomials will have integer coefficients.
+
+
 
 \subsection{Encryption, Decryption, and Relinearization}
 
