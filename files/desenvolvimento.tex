@@ -9,12 +9,13 @@ In this chapter, we shall discuss the algebraic theoretical background that grou
 
 \begin{definition}[Group]
 
-A non-empty set G is called a group under the operation $*$, if it satisfies the following three axioms:
+A non-empty set G is called a group under the operation $*$, if it satisfies the following axioms:
 
 \begin{alineas}
-    \item  (Closure) G is closed under $*$, i.e, for all $a,b\in G$, the result $a*b$ is also in $G$;
+    \item  (Closure) $G$ is closed under $*$, i.e, for all $a,b\in G$, the result $a*b$ is also in $G$;
     \item (Associativity) $(a* b)* c = a\times (b*c)$, for all $a,b,c\in G$;
     \item (Existence of identity) There exists $e\in G$ such that $a*e=e*a=a$ for all $a\in G$;
+    \item (Existence of inverse) There exists $a^{-1}\in G$ such that $a*a^{-1}=a^{-1}*a=e$ for all $a\in G$;
     
     We shall denote the group as $(G,*)$. If, in addition to the above axioms, the group also satisfies the next property, it is called an \textbf{abelian group}.
     
@@ -22,11 +23,13 @@ A non-empty set G is called a group under the operation $*$, if it satisfies the
 \end{alineas}
 \end{definition}
 
-\begin{definition}[Subgroup]
-Let $(G,\cdot)$ be a group, $H\subseteq G$ is a subgroup of $G$ if it satisfies the following:
+Examples of abelian groups\footnote{$\mathbb{Q}^{\times}=\mathbb{Q}/\{0\}$}: $(\mathbb{Z},+)$ with identity element $0$ and inverse of $a$ being $-a$. $(\mathbb{Q}^\times,\cdot)$ with identity $1$ and inverse $a^{-1}=1/a$.
+
+\begin{definition}[Subgroup]\label{def:subgroups}
+Let $(G,*)$ be a group, $H\subseteq G$ is a subgroup of $G$ if it satisfies the following:
 \begin{itemize}
     \item $H\neq\varnothing$;
-    \item $H$ is closed taking products: $a,b\in H\Rightarrow a\cdot b\in H$;
+    \item $H$ is closed under $G$ operation: $a,b\in H\Rightarrow a* b\in H$;
     \item $H$ is closed under taking inverses: $a\in H\Rightarrow a^{-1}\in H$.
 \end{itemize}
 Associativity is inherited by $G$ and the existence of identity element can be deduced by the above properties \cite{omn}.
@@ -71,7 +74,7 @@ An example of (principal) ideal of the ring of integers is $(2)=\{2r|r\in\mathbb
     \varphi(a\times b)&=\varphi(a)\times \varphi(b)\\
     \varphi(1_R)&=1_S
 \end{align*}
-Similarly, we can define group homomorphisms that will preserve their unique underlying operation.
+Similarly, we can define group homomorphisms that will preserve their unique underlying operation. $\varphi(0_R)=0_S$ is a consequence of group properties \cite{omn}.
 \end{definition}
 Some ring homomorphisms examples:
 \begin{alineas}
@@ -87,14 +90,47 @@ Some ring homomorphisms examples:
     \varphi_a(p(X))&=p(a),
 \end{align*} where $R[X]$ is the set of polynomials with coefficients in a ring $R$
 \end{alineas}
+\begin{definition}[Kernel] Let $\varphi:R\to S$ be a ring homomorphism. The kernel of $\varphi$ is the pre image of $0$:
+$$\ker \varphi = \{r\in R|\varphi(r)=0\}$$
+\end{definition}
+In the 
+\begin{proposition}
+    If $\varphi:R\to S$ is a ring homomorphism, then $\ker\varphi$ is an ideal of $R$. \cite{ring_theory}
+\end{proposition}
+\begin{proof}
+    We have to prove that $\ker\varphi$ is an additive subgroup of $R$ and that it satisfies:
+    $$r\times i\in \ker\varphi,\forall r\in R,i\in\ker\varphi,$$
+    which means $\varphi(r\times I)=0$. Indeed, that's the case:
+    $\varphi(r\times i)=\varphi(r)\times\varphi(i)=\varphi(r)\times0=0.
+    $
+    Now let's prove the three subgroup axioms (Def. \ref{def:subgroups}) for the addition operation, assuming $\varphi(0)=0$ as a fact.
 
+    \begin{itemize}
+        \item $\ker\varphi\neq\varnothing$: 
+        Since $\varphi(0)=0$, $\ker\varphi$ has at least $0$ as element;
+
+        \item $\ker\varphi$ is closed under $+$: 
+        Take $a,b\in\ker\varphi$. Using this fact and additive homomorphism property, we have $  \varphi(a+b)=\varphi(a)+\varphi(b)=0+0=0\Rightarrow a+b\in\ker\varphi$;
+
+        \item $\ker\varphi$ is closed under (additive) inverse: If $a\in\ker\varphi$, $\varphi(a)=0$ then $0=\varphi(0)=\varphi(a+(-a))=\varphi(a)+\varphi(-a)=\varphi(-a)$. So $\phi(-a)=0$ impling $-a\in\ker\varphi$
+    \end{itemize}
+\end{proof}
 \begin{definition}[Isomorphism]
     A map $\varphi:R\to S$ is called an isomorphism if it is a bijective homomorphism. In this case, we denote $R\cong S$
 \end{definition}
 
 \begin{definition}[Cosets]
+    Let $H$ be a subgroup of an abelian group $(G,\cdot)$. A translation of $H$,
+    $$\lambda_g(H)=\{g\cdot h|~h\in H\},$$
+    is called a \textit{coset} of $H$.
     
+    We denote the set of all cosets of $H$ by:
+$$G/H\stackrel{\text{def}}{=}\{g\cdot H|g\in G\}$$
 \end{definition}
+
+Since a ring $R$ can be viewed as an additive abelian group and an ideal $I\subseteq R$ as a subgroup. We
+
+
 \section{Cyclotomic polynomials}
 
 In this section, we define and review some properties of cyclotomic polynomials, which will play a central role in the homomorphic cryptography setup.
