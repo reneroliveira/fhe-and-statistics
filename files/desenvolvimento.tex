@@ -1,10 +1,9 @@
 \chapter{Algebraic Review}
 \label{ch:algebra}
 
-In this chapter, we shall discuss the algebraic theoretical background that grounds cryptography schemes.
+In this chapter, we shall discuss the algebraic theoretical background that grounds cryptography schemes. Section \ref{sec:basics} defines basic algebraic structures such as groups and rings. Section \ref{sec:homo} goes through homomorphism properties and quotient rings, two important concepts. Section \ref{sec:cyc} explains cyclotomic polynomials, a special type of polynomial that will be used in the next section and chapter. Section \ref{sec:lattices} defines lattices, an algebraic structure that has interesting computationally hard problems that will guarantee the security of our encryption schemes.
 
-
-\section{Basic structures}
+\section{Basic structures}\label{sec:basics}
 % groups, quotient groups, cosets, rings, quotient rings, fields
 
 \begin{definition}[Group]
@@ -46,7 +45,7 @@ Associativity is inherited by $G$ and the existence of identity element can be d
     \item (multiplicative identity) There exists an element $1$, such that, $1\times a = a\times 1 = a,$ for all $a\in R$.
 \end{alineas}
 
-Property d) is not mandatory for general non-commutative rings, but in this text, the term ``ring'' indicates a commutative one. Some examples of rings: $\mathbb{Z}$, ring of integers; $\mathbb{Z}_n$, the integers $\bmod$-$n$ and $\mathbb{Z}[X]$, set of polynomial with integer coefficients. The latter is a special ring that will be the base of our encryption schemes.
+Property d) is not mandatory for general non-commutative rings, but in this text, the term ``ring'' indicates a commutative one. Some examples of rings: $\mathbb{Z}$, ring of integers; $\mathbb{Z}_q$, the integers $\bmod$-$q$ and $\mathbb{Z}[X]$, set of polynomial with integer coefficients. The latter is a special ring that will be the base of our encryption schemes.
 \end{definition}
 
 \begin{definition}[Ideal]
@@ -64,24 +63,24 @@ An example of (principal) ideal of the ring of integers is $(2)=\{2r|r\in\mathbb
 \begin{definition}[Fields]
     A Field $F$ is a commutative ring, where for every non-zero element $a\in F$ there exists $a^{-1}\in F$ such that $aa^{-1}=1$, being $1$ the ring unity element.
 
-    $\mathbb{Q},\mathbb{R}$ and $\C$ are examples of fields.
+    $\mathbb{Q},\mathbb{R}$ and $\C$ are examples of fields, but $\mathbb{Z}$ is not.
 \end{definition}
 
-\section{Homomorphisms and Quotient Rings}
+\section{Homomorphisms and Quotient Rings}\label{sec:homo}
 \begin{definition}[Ring homomorphism] Let $R$ and $S$ be rings. A map $\varphi:R\to S$ is called a ring homomorphism if it preserves addition/multiplication operations and the unity element:
 \begin{align*}
     \varphi(a+b)&=\varphi(a)+\varphi(b)\\
     \varphi(a\times b)&=\varphi(a)\times \varphi(b)\\
     \varphi(1_R)&=1_S
 \end{align*}
-Similarly, we can define group homomorphisms that will preserve their unique underlying operation. $\varphi(0_R)=0_S$ is a consequence of group properties \cite{omn}.
+Similarly, we can define group homomorphisms that will preserve their unique underlying operation. $\varphi(0_R)=0_S$ is a consequence of group properties\footnote{Here $0_R$ denotes the identity element of $R$ when viewed as an additive group} \cite{omn}.
 \end{definition}
 Some ring homomorphisms examples:
 \begin{alineas}
     \item Integer modular reduction operation:
 \begin{align*}
-    \varphi&:\Z\to\Z_n\\
-    \varphi(a)&=a(\bmod~n)
+    \varphi&:\Z\to\Z_q\\
+    \varphi(a)&=a(\bmod~q)
 \end{align*}
 
 \item Polynomial evaluation at $a\in R$:
@@ -93,8 +92,9 @@ Some ring homomorphisms examples:
 \begin{definition}[Kernel] Let $\varphi:R\to S$ be a ring homomorphism. The kernel of $\varphi$ is the pre image of $0$:
 $$\ker \varphi = \{r\in R|\varphi(r)=0\}$$
 \end{definition}
-In the 
-\begin{proposition}
+In the above homomorphism examples, the kernel of modular reduction by $q$ is the set of multiples of $q$. The kernel of polynomial evaluation at $a$ is the set of all polynomials in $p(X)\in R[X]$ such that $a$ is one of its roots, i.e., $p(a)=0$.
+
+\begin{proposition}\label{prop:kernel}
     If $\varphi:R\to S$ is a ring homomorphism, then $\ker\varphi$ is an ideal of $R$. \cite{ring_theory}
 \end{proposition}
 \begin{proof}
@@ -116,8 +116,10 @@ In the
     \end{itemize}
 \end{proof}
 \begin{definition}[Isomorphism]
-    A map $\varphi:R\to S$ is called an isomorphism if it is a bijective homomorphism. In this case, we denote $R\cong S$
+    A map $\varphi:R\to S$ is called an isomorphism if it is a bijective homomorphism. In this case, we denote $R\cong S$.
 \end{definition}
+A famous example of group isomorphism is \begin{align*}\varphi&:\C\to\mathbb{R}^2\\\varphi(a+bi)&=(a,b),\end{align*}
+if we define multiplication in $\mathbb{R}^2$ as $(a,b)(c,d)=(ac-bd,ad+bc)$ it become a ring isomorphism.
 
 \begin{definition}[Cosets]
     Let $H$ be a subgroup of an abelian group $(G,\cdot)$. A translation of $H$,
@@ -128,10 +130,29 @@ In the
 $$G/H\stackrel{\text{def}}{=}\{g\cdot H|g\in G\}$$
 \end{definition}
 
-Since a ring $R$ can be viewed as an additive abelian group and an ideal $I\subseteq R$ as a subgroup. We
+Since a ring $R$ can be viewed as an additive abelian group and an ideal $I\subseteq R$ as a subgroup. We extend the coset notion to rings as:
+$$R/I=\{I+r|r\in R\}$$
+For example: Take the ring of integers $\Z$ and the multiples of three ideal $I=(3)$. The cosets of $I$ are translations the translations of $I=\{\ldots,-3,0,3,6,\ldots\}$:
+\begin{align*}
+    0+I&=\{\ldots,-3,0,3,6,\ldots\}\\
+    1+I&=\{\ldots,-2,1,4,7,\ldots\}\\
+    2+I&=\{\ldots,-1,2,5,8,\ldots\}\\
+\end{align*}
+Summing other elements of $\Z$ to $I$ will result in one of the above sets. We can give an algebraic structure to these cosets and transform them into rings! 
 
+For each coset, we choose a representative $r$ for $\overline{r}=r+I$, and we can define addition, multiplication and prove the ring axioms for these operations, characterizing the \textit{Quotient Ring} \cite{ring_theory}. When working with a quotient ring in practice, instead of summing two (possibly infinite) cosets, we elect some representatives and operate on them; In the above example, $\Z/(3)=\{\overline{0},\overline{1},\overline{2}\}$, and $\overline{1}+\overline{2}=\overline{3}$, which is equivalent to $\overline{0}$. 
 
-\section{Cyclotomic polynomials}
+A common notation for integers modulo $q$, for example, is $\Z/q\Z$ which is actually the set of cosets of the ideal of multiples of $n$. It's also common to choose the representatives as $\{0,1,\ldots,q-1\}$, but there is nothing stopping us from choosing for example $\Z\cap(-q/2,q/2]$; in this case the representative are centered in $0$ for an odd $q$, e.g., $\Z/3\Z=\{\overline{-1},\overline{0},\overline{1}\}$. That's exactly the choice of representatives we make in Section \ref{sec:ckks}, where the goal is to minimize the size of messages and ciphertext for a better performance of the encryption scheme.
+
+The following theorem is perhaps one of the most important theorems of group and ring theory and provides an alternative way of looking at quotient rings of kernels.
+\begin{theorem}[First Ring Homomorphism Theorem] Let $R,S$ be rings, if $\varphi:R\to S$ is a ring homomorphism, and $\varphi(R)$ its image, then $R/\ker\varphi\cong\varphi(R)$. For proof, refer to \cite{ring_theory}.
+\end{theorem}
+
+Returning to the example of $\Z/q\Z$, take the modular reduction homomorphism $\varphi(a)=a~(\bmod q)$, its kernel is the ideal $q\Z$ of multiples of $q$. What the above theorem is saying is that the image $\varphi(\Z)=\Z~(\bmod{q})=\{0,1,2\}$ is isomorphic to the quotient ring $\Z/q\Z$.
+
+Let $\Z[X]$ be the polynomials with integer coefficients and $f(x)= x^n+1$, a monic polynomial with degree $n$. Define the homomorphism $\varphi:\Z[X]\to\Z[X]$, that take a polynomial $p(x)\in\Z[X]$ and returns $r(x)$, the remainder of the polynomial division $p(x)/f(x)$, using grade-school division algorithm. $\ker\varphi $ is the set of polynomials with remainder equal $0$, i.e., the set of multiples of $x^n+1$ in $\Z[X]$, which is the ideal generated by $f$ (Prop. \ref{prop:kernel}). The Homomorphism Theorem affirms that $\Z[X]/(f(x))\cong\varphi(\Z[X])$, so we can represent the set of cosets of $(x^n+1)$ simply as the image of $\varphi$: the set of remainders in the division by $f(x)$, which can be viewed as the integer polynomials with degree less than $n$. This will be a central ring in the encryption schemes we shall further define.
+
+\section{Cyclotomic polynomials}\label{sec:cyc}
 
 In this section, we define and review some properties of cyclotomic polynomials, which will play a central role in the homomorphic cryptography setup.
 
@@ -245,9 +266,9 @@ Another interesting property of cyclotomic polynomials, which is quite impressiv
 ``For any positive integer $n$ we have $\Phi_n(x)\in\Z[x]$, That is, $\Phi_n(x)$ is a polynomial
 with integer coefficients.''\cite{sun2013cyclotomic}
 \end{theorem}
-We defined these polynomials as products of a bunch of complex numbers, but the coefficients end up in the integers! Such a beautiful property will allow us to determine later quotient rings like $\Z[x]/(\Phi_n(x))$ to our encryption context.
+We defined these polynomials as products of a bunch of complex numbers, but the coefficients end up in the integers! Such a beautiful property, together with the fact the cyclotomic polynomials are monic \cite{sun2013cyclotomic}, will allow us to determine later quotient rings like $\Z[x]/(\Phi_n(x))$ to our encryption context.
 
-\section{Lattices}
+\section{Lattices}\label{sec:lattices}
 
 This section introduces lattices and hard lattice problems that will base the security of fully homomorphic schemes.
 \begin{definition}[Lattice]
