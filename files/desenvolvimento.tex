@@ -672,12 +672,12 @@ Now let's describe the concrete cryptographic primitives of the CKKS scheme. Fix
 
 The notation $\Z_q$ will choose the representatives from $\Z\cap (q/2,q/2]$, and $[ \cdot ]_q$ applied to a polynomial means wrapping its coefficients modulo $q$. $\lambda$ is a security parameter, which known attacks taking $\Omega(2^\lambda)$.
 
-The Discrete Gaussian distribution $\dg(\sigma^2)$ over the polynomial ring $\ring$ samples the coefficients from a discrete gaussian with variance $\sigma^2$ over $\Z^N$ \cite{ckks17}; We'll use this distribution for sampling RLWE errors. Another useful distribution is $\zo(\rho)$ over $\ring_2=\Z_2[X]/(X^N+1)$, i.e., the polynomials with degree up to $N-1$ with coefficients in $\{0,\pm1\}$. $\zo(\rho)$ draws $N$ samples with probability $1-\rho$ of being zero and $\rho/2$ of being $+1$ or $-1$, this becomes the coefficients of the polynomial in $\ring_2$.
+The Discrete Gaussian distribution $\dg(\sigma^2)$ over the polynomial ring $\ring$ samples the coefficients from a discrete gaussian with variance $\sigma^2$ over $\Z^N$ \cite{ckks17}; We'll use this distribution for sampling RLWE errors. Another useful distribution is $\zo(\rho)$ over $\ring_3=\Z_3[X]/(X^N+1)$, i.e., the polynomials with degree up to $N-1$ with coefficients in $\{0,\pm1\}$. $\zo(\rho)$ draws $N$ samples with probability $1-\rho$ of being zero and $\rho/2$ of being $+1$ or $-1$, this becomes the coefficients of the polynomial in $\ring_3$.
 
 \begin{itemize}
     \item $\operatorname{KeyGen}(\lambda)$- Given a security parameter $\lambda$, chooses cyclotomical dimension $M=M(\lambda)$, error standard deviation $\sigma=\sigma(\lambda)$ and an integer $P=P(\lambda)$.
     
-    Samples $s\leftarrow \ring_2$, $a\xlongleftarrow[]{\mathcal U}\mathcal{R}_{q_L}$ and $e\xlongleftarrow[]{\dg(\sigma^2)}\ring$.
+    Samples $s\leftarrow \ring_3$, $a\xlongleftarrow[]{\mathcal U}\mathcal{R}_{q_L}$ and $e\xlongleftarrow[]{\dg(\sigma^2)}\ring$.
     
     Set $\sk = (1,s)$ and $\pk = (b,a)$, with $b=\modulo[q_L]{-a\cdot s +e}$. Security of public key exposure is guaranteed by RLWE (Def. \ref{def:rlwe}).
 
@@ -710,13 +710,73 @@ To make an FHE scheme out of the previously described leveled homomorphic one, w
     \modulo{\langle\bd c,\sk\rangle} = \dfrac{q}{2\pi}\cdot \sin\left(\dfrac{2\pi}{q}\cdot\langle \bd c,\sk\rangle\right) + O(\varepsilon^3\cdot q),
 \end{align*} when $| \modulo{\langle\bd c,\sk\rangle}|\leq\varepsilon\cdot q$. CKKS scheme doesn't evaluate sine functions, it only permits additions and multiplications, so the authors used the Taylor expansion polynomial approximation, which can be represented as a composition of additions and multiplications.
 
-
-
-
 \chapter{Private Logistic Regression}
-\section{Statistical Review}
-\section{Homomorphic Training}
-\section{Data Applications}
+ In this chapter we describe and test an algorithm for training a logistic regression model over encrypted data proposed in \cite{logreg}. Section \ref{sec:stat_rev} reviews basics statistic about classical logistic regression in plain data. Section \ref{sec:hom_train} describes how to adapt the training algorithm to the FHE setup. Finally, Section \ref{sec:data_app} show our experimental results.
+
+\section{Statistical Review}\label{sec:stat_rev}
+
+Logistic Regression is a probability model for binary class target variable. We have a dataset of $n$ observations of $d$ variables represented as a matrix $\boldsymbol X\in\mathbb{R}^{n\times d}$ and a target $n$-dimensional vector $\bd y\in\{0,1\}^n$.
+
+For each observation $\bd x_i$ we have a corresponging binary responsing $y_i\in\{0,1\}$ that could mean a positive diagnosis for a disease in medical data, a credit default flag for in banking data or whether  an email is spam or not. Logistic regression models the probability of a true flag $p(\bd x)=\mathbb{P}(Y=1|X=\bd x)$ as if the log-odds were a linear function of $\bd x$:
+$$\ln\left(\dfrac{p(\bd x)}{1-p(\bd x)}\right)=\bd w^T\bd x',$$
+where $\bd w=(w_0,w_1,\ldots,w_d)^T\in\mathbb{R}^{d+1}$ is the vector of weights and $\bd x'=(1;\bd x)$ is an extended version of $\bd x$ with $1$ as the first element, to multiply by the bias term $w_0$. 
+Isolating $p(\bd x)$, we get the model sigmoid model, for the probabilities:
+$$p(\bd x)=\sigma(\bd w^T\bd x'),$$ where $\sigma(x)=1/(1+e^{-x})$.
+
+The goal of the training algorithm is to find $\bd w$ that maximizes the bernoulli likelihood:
+$$\displaystyle\mathcal{L}(\bd w)=\prod_{i=1}^n\sigma(\bd w^T\bd x'_i)^{y_i}(1-\sigma(\bd w^T\bd x'_i))^{1-y_i}$$
+
+Observe that, the main part is $\sigma(\bd w^T\bd x'_i)$ if $y_i=1$ and $1-\sigma(\bd w^T\bd x'_i)$ if $y_i=0$. Transforming $y_i\in\{0,1\}$ to $y_i'=2y_i-1\in\{-1,+1\}$ and using the sigmoid property $\sigma(-x)=1-\sigma(x)$, we can rewrite the likelihood as:
+$$\displaystyle\mathcal{L}(\bd w)=\prod_{i=1}^n\sigma(\bd w^T\bd z_i),$$ where $\bd z_i=\bd x'_i\cdot y'_i$. This trick will simplify the gradient calculation in the maximization process. In practice we minimize the negative log-likelihood:
+\begin{align*}
+    \ell(\bd w)&=-\dfrac{1}{n}\ln(\mathcal{L}(\bd w))\\
+    &=-\dfrac1n\sum_{i=1}^n\ln(\sigma(\bd w^T\bd z_i))
+\end{align*}
+Since $\ln$ is a convex function in we can minimize it using the gradient descent iterative algorithm:
+\begin{align*}
+    \bd w_{i+1}=\bd w_i-\alpha\nabla\ell(\bd w_i),
+\end{align*} for a given learning rate $\alpha>0$
+
+Using $\sigma'(x)=\sigma(x)\sigma(-x)$, we can calculate the gradient:
+\begin{align*}
+    \nabla\ell(\bd w)&=-\dfrac1n\sum_{i=1}^n\nabla \ln(\sigma(\bd w^T\bd z_i)\\
+    &=-\dfrac1n\sum_{i=1}^n\dfrac{\nabla\sigma(\bd w^T\bd z_i)}{\sigma(\bd w^T\bd z_i)}\\
+    &=-\dfrac1n\sum_{i=1}^n\dfrac{\sigma'(\bd w^T\bd z_i)\bd z_i}{\sigma(\bd w^T\bd z_i)}\\
+    &=-\dfrac1n\sum_{i=1}^n\sigma(-\bd w^T\bd z_i)\bd z_i
+\end{align*}
+
+Summarizing, a classical logistic regression training algorithm initializes $\bd w_0$ and then it update the weights by:
+\begin{align}
+    \bd w_{i+1}&=\bd w_i-\alpha\nabla\ell(\bd w_i),\nonumber\\
+   \text{where }\nabla\ell(\bd w_i)&=-\dfrac1n\sum_{j=1}^n\sigma(-\bd w_i^T\bd z_j)\bd z_j\label{eq:gradient}
+\end{align}
+\section{Homomorphic Training}\label{sec:hom_train}
+
+To adapt the training algorithm to an FHE-friendly setup \cite{logreg} used three main ingredients:
+\begin{alineas}
+    \item Mini-batch gradient descent: The gradient is calculated over a subset of the data instead of the whole dataset. Notice that gradient equation \ref{eq:gradient}, requires $n$ multiplications between sigmoid result and $\bd z_i$, operation that can be expansive or even impossible to do homomorphically for a large $n$. Miini-batch procedure can also take advantage of the message encoding process described in previous chapter.
+    \item Nesterov Accelerated Gradient (NAG) Optimizer: Instead of conventional gradient descent we'll use the NAG variant:
+\begin{align*}
+    \bd w_{i+1}&=\bd v_i-\gamma \nabla\ell(\bd  v_i)\\
+    \bd v_{i+1}&=(1-\eta)\bd w_{i+1}+\eta \bd w_{i},
+\end{align*} where $\gamma$ and $\eta$ are parameters that must be set by the user.
+ \item Polynomial approzimation for sigmoid: It's not possible to evaluate $\exp(-x)$ homomorphically, so the authors propose the use of a polynomial approximation for the sigmoid function, fitted using least squares minimization. The degree $3$ approximation, that will be used in our tests, is $0.5+0.15x+-0.0015x^3$, and it's the polynomial has the least square distante to the actual sigmoid in the interval $[-8,8]$ (Figure \ref{fig:sigmoid}). It's desirable to have a low degree polynomial in order to save multiplications, and a cubic function provides a decent estimate.
+\end{alineas}
+\begin{figure}[!htb]
+    \centering
+    \includegraphics[scale=0.3]{files/figures/sigmoid.png}
+    \caption{Sigmoid polynomial approximation}
+    \label{fig:sigmoid}
+\end{figure}
+
+Let $\boldsymbol Z$ be the $n\times(d+1)$ matrix where the columns are $\bd z_i=\bd x'_i\cdot y'_i$. We'll encrypt it as blocks benefiting from CKKS encoding technique. Let's denote $\bd Z = [\bd y',~\bd x'_1,~\bd x'_2,~\ldots,~x'_d]$ more explicitly:
+$$\bd Z=\left[\begin{matrix}
+    z[0][0] & z[0][1] & \ldots & z[0][d]\\
+    z[1][0] & z[1][1] & \ldots & z[1][d]\\
+    \vdots  &  \vdots & \ddots & \vdots \\
+    z[n-1][0] & z[n-1][1] & \ldots & z[n-1][d]
+\end{matrix}\right]$$ where 
+\section{Data Applications}\label{sec:data_app}
 
 
 
