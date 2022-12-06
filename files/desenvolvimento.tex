@@ -701,7 +701,9 @@ In this case, $(d_0^*,d_1^*)=(d_0,d_1)+\lfloor P^{-1}\cdot d_2\cdot\evk\rceil(\b
 The levels $L$ define the maximum multiplicative depth the scheme allows because, after each multiplication, we rescale the ciphertext from $\ell\to\ell-1$ using:
 $$\operatorname{Rescale_{\ell\to\ell'}}(\boldsymbol c) = \left\lfloor \dfrac{q_\ell'}{q_\ell}\bd c\right\rceil$$,
 
-The intuition behind it is that each ciphertext has an embedded noise added by the encryption process, and multiplication increases it (exponentially!). the rescaling process controls the noise, reducing the ciphertext modulus together with its built-in error. For more details, refer to \cite{rescale}.
+The intuition behind it is that each ciphertext has an embedded noise added by the encryption process, and multiplication increases it (exponentially!). the rescaling process controls the noise, reducing the ciphertext modulus and its built-in error. For more details, refer to \cite{rescale}.
+
+Another useful operation permitted by the scheme is \textit{rotation} of plaintext slots, i.e., for a given $\bd z=(z_1,z_2,\ldots,z_{N/2})$ we can homomorphically apply a left rotation by $i$ for example, and output a ciphertext that encrypts $(z_i,z_{i+1},\ldots,z_{N/2},z_1,z_2\ldots,z_{i-1})$. Analogously a right rotation method can be constructed.
 
 \subsection{Approximate Bootstrapping}
 
@@ -711,7 +713,7 @@ To make an FHE scheme out of the previously described leveled homomorphic one, w
 \end{align*} when $| \modulo{\langle\bd c,\sk\rangle}|\leq\varepsilon\cdot q$. CKKS scheme doesn't evaluate sine functions, it only permits additions and multiplications, so the authors used the Taylor expansion polynomial approximation, which can be represented as a composition of additions and multiplications.
 
 \chapter{Private Logistic Regression}
- In this chapter we describe and test an algorithm for training a logistic regression model over encrypted data proposed in \cite{logreg}. Section \ref{sec:stat_rev} reviews basics statistic about classical logistic regression in plain data. Section \ref{sec:hom_train} describes how to adapt the training algorithm to the FHE setup. Finally, Section \ref{sec:data_app} show our experimental results.
+ In this chapter, we describe and test an algorithm for training a logistic regression model over encrypted data proposed in \cite{logreg}. Section \ref{sec:stat_rev} reviews basics statistic about classical logistic regression in plain data. Section \ref{sec:hom_train} describes how to adapt the training algorithm to the FHE setup. Finally, Section \ref{sec:data_app} show our experimental results.
 
 \section{Statistical Review}\label{sec:stat_rev}
 
@@ -754,30 +756,155 @@ Summarizing, a classical logistic regression training algorithm initializes $\bd
 
 To adapt the training algorithm to an FHE-friendly setup \cite{logreg} used three main ingredients:
 \begin{alineas}
-    \item Mini-batch gradient descent: The gradient is calculated over a subset of the data instead of the whole dataset. Notice that gradient equation \ref{eq:gradient}, requires $n$ multiplications between sigmoid result and $\bd z_i$, operation that can be expansive or even impossible to do homomorphically for a large $n$. Miini-batch procedure can also take advantage of the message encoding process described in previous chapter.
-    \item Nesterov Accelerated Gradient (NAG) Optimizer: Instead of conventional gradient descent we'll use the NAG variant:
+    \item Mini-batch gradient descent: The gradient is calculated over a subset of the data instead of single elements or the whole dataset. Effectively, the sum in equation \ref{eq:gradient} doesn't range from 1 to $n$, but in a predetermined subset of indexes. Such a procedure can take advantage of the message encoding process described in the previous chapter, while limiting circuit depth.
+    \item Nesterov Accelerated Gradient (NAG) Optimizer: Instead of conventional gradient descent, we'll use the NAG variant:
 \begin{align*}
     \bd w_{i+1}&=\bd v_i-\gamma \nabla\ell(\bd  v_i)\\
     \bd v_{i+1}&=(1-\eta)\bd w_{i+1}+\eta \bd w_{i},
 \end{align*} where $\gamma$ and $\eta$ are parameters that must be set by the user.
- \item Polynomial approzimation for sigmoid: It's not possible to evaluate $\exp(-x)$ homomorphically, so the authors propose the use of a polynomial approximation for the sigmoid function, fitted using least squares minimization. The degree $3$ approximation, that will be used in our tests, is $0.5+0.15x+-0.0015x^3$, and it's the polynomial has the least square distante to the actual sigmoid in the interval $[-8,8]$ (Figure \ref{fig:sigmoid}). It's desirable to have a low degree polynomial in order to save multiplications, and a cubic function provides a decent estimate.
+ \item Polynomial approximation for sigmoid: It's impossible to homomorphically evaluate $e^{-x}$ exactly, so the authors propose using a polynomial approximation for the sigmoid function, fitted using least squares minimization. The degree $3$ estimate that will be used in our tests is $\sigma_2(x)=0.5+0.15x+-0.0015x^3$, and it's the polynomial has the least square distance to the actual sigmoid in the interval $[-8,8]$ (Figure \ref{fig:sigmoid}). It's desirable to have a low-degree polynomial to save multiplications, and a cubic function provides a decent estimate.
 \end{alineas}
 \begin{figure}[!htb]
     \centering
-    \includegraphics[scale=0.3]{files/figures/sigmoid.png}
+    \includegraphics[scale=0.20]{files/figures/sigmoid.png}
     \caption{Sigmoid polynomial approximation}
     \label{fig:sigmoid}
 \end{figure}
 
-Let $\boldsymbol Z$ be the $n\times(d+1)$ matrix where the columns are $\bd z_i=\bd x'_i\cdot y'_i$. We'll encrypt it as blocks benefiting from CKKS encoding technique. Let's denote $\bd Z = [\bd y',~\bd x'_1,~\bd x'_2,~\ldots,~x'_d]$ more explicitly:
+Then the first version of the algorithm can be formalized:
+
+\begin{algorithm}[!htb]
+    \caption{Approximate mini-batch training through NAG \cite{logreg}}\label{alg:alg1}
+    \begin{algorithmic}[1]
+        \REQUIRE{Mini-batches $\{Z_i\}$ where $Z_i\in\mathbb{R}^{m\times (d+1)}$, parameter $\gamma,\eta$, number of iterations $K$ and an approximate sigmoid $\sigma_2$}
+\ENSURE{Weight vectors $\bd w,\bd v\in\mathbb{R}^{d+1}$}
+ \STATE Initializes $\bd w,\bd v\leftarrow \bd 0$;
+ \FOR{$k$ in $1,\ldots,K$}
+  \STATE Select a mini-batch $Z_i$ (in order or at random)
+  \STATE $\bd a = Z_i\cdot \bd v$
+  \FOR{$j$ in $1,\ldots,m$}
+  \STATE $b_j=\sigma_2(a_j)$
+  \ENDFOR
+  \STATE $\bd\Delta=\sum_{j=0}^{ m-1}b_j\cdot Z_i[j]$
+  \STATE $\bd w^{+}=\bd v-\gamma \bd \Delta$
+  \STATE $\bd v^{+}=(1-\eta)\bd w^{+}+\eta\bd w$
+  \STATE $\bd w=\bd w^{+},~\bd v = \bd v^{+}$
+ \ENDFOR
+    \end{algorithmic}
+\end{algorithm} 
+
+Notice that the gradient 
+Steps 4-7 calculate the sigmoidal part of the gradient, and step 8, effectively compute it. Steps 9-10 correspond to the NAG updates. 
+
+\subsection{Ciphertext packing and data representation}
+Let $\boldsymbol Z$ be the $n\times(d+1)$ matrix where the columns are $\bd z_j=\bd x'_j\cdot y'_j$, and $x_{i,j}$ the $i^{th}$ elements of $\bd x_j$. Denote $\bd Z = [\bd y',~\bd x'_1,~\bd x'_2,~\ldots,~x'_d]$ or, more explicitly:
 $$\bd Z=\left[\begin{matrix}
     z[0][0] & z[0][1] & \ldots & z[0][d]\\
     z[1][0] & z[1][1] & \ldots & z[1][d]\\
     \vdots  &  \vdots & \ddots & \vdots \\
     z[n-1][0] & z[n-1][1] & \ldots & z[n-1][d]
-\end{matrix}\right]$$ where 
-\section{Data Applications}\label{sec:data_app}
+\end{matrix}\right]$$ where $z[i][0]=y_i'$ and $z[i][j+1]=\bd y_i'\cdot x_{i,j}$, for $0\leq i\leq n-1$ and $0\leq j\leq d-1$
 
+Instead of encrypting each element of $\bd Z$ separately, we partition the data in $m\times g$ submatrices and encrypt each block as a unique ciphertext:
+\begin{align}\label{eq:zij}Z_{i,j}=\left[\begin{matrix}
+    z[mi][gj] & \ldots & z[mi][gj+(g-1)]\\
+    z[mi+1][gj] & \ldots & z[mi+1][gj+(g-1)]\\
+    \vdots  & \vdots & \vdots \\
+    z[mi+(m-1)][gj] & \ldots & z[mi+(m-1)][gj+(g-1)]
+\end{matrix}\right],\end{align} for $0\leq i<n/m$ and $0\leq j <(d+1)/g$
+
+Then we linearize (by row) the above matrix and transform it into a $mg$-dimensional real (so complex) vector $\bd p_{i,j}$. We then encrypt $\bd p_{i,j}$ using the scheme described in the previous chapter. The size of the blocks $m$ and $g$ are chosen such that $mg=N/2$, where $N/2$ is the dimension of encoding space $\C^{N/2}$. 
+
+Notice that this packing technique produces $n(d+1)/mg$ ciphertexts instead of $n(d+1)$ of a naive elementwise encoding approach.
+
+The NAG weight vectors $\bd w$ and $\bd v$ are also partitioned into $(d+1)/g$ sub-vectors and represented by a $m\times g$ matrix of $m$ copies of the sub-vector. So the $j^{th}$ sub-vector will corresponds to :
+$$W_j=\left[\begin{matrix}
+    w[gj] & w[gj+1] & \ldots & w[gj+(g-1)]\\
+    w[gj] & w[gj+1] & \ldots & w[gj+(g-1)]\\
+    \vdots  & \vdots & \vdots &\vdots \\
+    w[gj] & w[gj+1] & \ldots & w[gj+(g-1)]\end{matrix}\right],$$
+and $V_j$ is defined analogously. The encryption works as in $Z_{i,j}$
+
+\subsection{Batch Inner Product}
+
+Recall from Algorithm \ref{alg:alg1} that the training phase requires evaluating two inner products (steps 4 and 8). The two steps will take $O(g^2)$ multiplications and $O(g)$ additions. To make these steps more FHE-friendly and its multiplicative complexity \cite{logreg} introduced a batching technique that requires only two SIMD multiplications ($O(1)$) and $O(\log g)$ SIMD additions, using the matrix representation described before.
+
+Given $Z\in \mathbb{R}^{m\times g},\bd v\in\mathbb{R}^{g}$, our goal is to homomorphically calculate $Z\cdot\bd v$. Let $V\in\mathbb{R}^{m\times g}$ be the matrix of $m$ copies of $\bd v$; if we encrypt $Z$ and $V$ in a row-linearization style and homomorphically multiply them, we get an encryption of the Hadamard product (elementwise):
+$$Z\circ V=\left[\begin{matrix}
+    Z[1][1]\cdot v[1] & Z[1][2]\cdot v[2] &\ldots& Z[1][g]\cdot v[g]\\
+    Z[2][1]\cdot v[1] & Z[2][2]\cdot v[2] &\ldots& Z[2][g]\cdot v[g]\\
+    \vdots &\vdots &\ddots &\vdots\\
+    Z[m][1]\cdot v[1] & Z[m][2]\cdot v[2] &\ldots& Z[m][g]\cdot v[g]\\
+\end{matrix}\right]$$
+Given this result, we just have to sum its columns, which can be done through rotations combined with additions. Let $\operatorname{Lrot}_i(A)$ be the matrix whose elements are rotated $i$ places to the left (thinking in the linearized vector of $A$). Without loss of generality, assume that $g$ is a power of two, if that's not the case, we can append zeros to it. Defines $A^{(1)}=Z\circ V$, the desired inner product is the first column of $A^{(g)}$ which is updated through the following $(\log g)$-step iterative process:
+\begin{align}\label{eq:inner}
+A^{(2^{k+1})}&=A^{(2^k)}+\operatorname{Lrot}_{2^k}(A^{(2^k)})
+\end{align}
+It's not difficult to prove that:
+$$A^{(2^{k+1})}_1=\left[\begin{matrix}
+    \sum_{i=1}^{2^{k+1}}Z[1][i]\cdot v[i]\\
+    \sum_{i=1}^{2^{k+1}}Z[2][i]\cdot v[i]\\
+    \vdots\\
+    \sum_{i=1}^{2^{k+1}}Z[m][i]\cdot v[i]
+\end{matrix}\right],$$
+
+which directly implies $A^{(g)}=Z\cdot\bd v$ as wanted. 
+To get a better idea of what \ref{eq:inner} is doing, let's work in a $4$-dimensional example: Denote $A^{(1)}=Z\circ V$ as $[\bd a_1,~\bd a_2,~\bd a_3,~\bd a_4]$ for simplicity.
+\begin{itemize}
+    \item Iteration $k=0$, Compute $A^{ (2)}$:
+\begin{align*}
+    A^{(2)} &= A^{1}+\operatorname{Lrot}_1(A^{(1)})\\
+    & = [\bd a_1,~\bd a_2,~\bd a_3,~\bd a_4]\\
+    &~+[\bd a_2,~\bd a_3,~\bd a_4,\bd a_1]\\
+    &=[\bd a_1+\bd a_2,~\bd a_2+\bd a_3,~\bd a_3+\bd a_4,~\bd a_4+\bd a_1]
+\end{align*}
+\item Iteration $k=1$, Compute $A^{ (4)}$:
+\begin{align*}
+    A^{(4)} &= A^{2}+\operatorname{Lrot}_2(A^{(2)})\\
+    & = [\bd a_1+\bd a_2,~\bd a_2+\bd a_3,~\bd a_3+\bd a_4,~\bd a_4+\bd a_1]\\
+    &~+[\bd a_3+\bd a_4,~\bd a_4+\bd a_1,\bd a_1+\bd a_2,~\bd a_2+\bd a_3]\\
+    &=[\bd a_1+\bd a_2+\bd a_3+\bd a_4,\ldots]
+    \end{align*}
+\end{itemize}
+
+Notice that until now, only one multiplication was used. The complete result of $A^{(g)}$ from Recurrence \ref{eq:inner} is actually a $m\times g$ matrix, where the columns after the first are not important. To clean it out, we use another SIMD multiplication by a mask matrix $[\bd1~\bd0~\ldots~\bd0]$ and use a similar procedure of rotation-addition as the above one to replace the null entries by replicates of the first column.
+
+The procedure of summing columns, removing garbage by the zero mask, and propagating first column entries, is defined as a separated algorithm for \cite{logreg}: $\operatorname{SumColVec}$, returning :
+$$\operatorname{SumColVec}(A)=\left[\begin{matrix}
+    \sum_ja_{1j}&\ldots&\sum_ja_{1j}\\
+    \sum_ja_{2j}&\ldots&\sum_ja_{2j}\\
+    \vdots&\ddots&\vdots\\
+    \sum_ja_{mj}&\ldots&\sum_ja_{mj}
+\end{matrix}\right],$$
+ for $A\in\mathbb{R}^{m\times g}$. The desired inner product is then $\operatorname{SumColVec}(Z\circ V)$, actually a matrix of duplicates $g$ duplicates of it. Similarly, the $\operatorname{SumRowVec}$ algorithm returns a matrix with $m$ replicates of the sum over $A$ rows, using an analogous process of SIMD operations. 
+
+With the SIMD mask multiplication, the total multiplicative cost of the batch inner product is $2$.
+
+Now we have all tools to redefine the loop of Algorithm \ref{alg:alg1} to its vectorized form and compatible with HEAAN homomorphic operations. For a fixed iteration $i$, $\Z_j=Z_{i,j}$ as in 
+
+\begin{algorithm}[!htb]
+    \caption{Vectorized weights update \label{alg:alg1}}
+    \begin{algorithmic}[1]
+        \REQUIRE{$Z_j,W_j,V_j$}
+\ENSURE{Weight vectors $\bd w,\bd v\in\mathbb{R}^{d+1}$}
+ \STATE Initializes $\bd w,\bd v\leftarrow \bd 0$;
+ \FOR{$k$ in $1,\ldots,K$}
+  \STATE Select a mini-batch $Z_i$ (in order or at random)
+  \STATE $\bd a = Z_i\cdot \bd v$
+  \FOR{$j$ in $1,\ldots,m$}
+  \STATE $b_j=\sigma_2(a_j)$
+  \ENDFOR
+  \STATE $\bd\Delta=\sum_{j=0}^{ m-1}b_j\cdot Z_i[j]$
+  \STATE $\bd w^{+}=\bd v-\gamma \bd \Delta$
+  \STATE $\bd v^{+}=(1-\eta)\bd w^{+}+\eta\bd w$
+  \STATE $\bd w=\bd w^{+},~\bd v = \bd v^{+}$
+ \ENDFOR
+    \end{algorithmic}
+\end{algorithm} 
+
+
+\section{Data Applications}\label{sec:data_app}
+test
 
 
 
