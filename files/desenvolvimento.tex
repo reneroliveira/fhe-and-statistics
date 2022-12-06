@@ -867,7 +867,7 @@ To get a better idea of what \ref{eq:inner} is doing, let's work in a $4$-dimens
     \end{align*}
 \end{itemize}
 
-Notice that until now, only one multiplication was used. The complete result of $A^{(g)}$ from Recurrence \ref{eq:inner} is actually a $m\times g$ matrix, where the columns after the first are not important. To clean it out, we use another SIMD multiplication by a mask matrix $[\bd1~\bd0~\ldots~\bd0]$ and use a similar procedure of rotation-addition as the above one to replace the null entries by replicates of the first column.
+Notice that until now, only one multiplication was used. The complete result of $A^{(g)}$ from Recurrence \ref{eq:inner} is actually a $m\times g$ matrix, where the columns after the first are not important. To clean it out, we use another SIMD multiplication by a mask matrix $[\bd1~\bd0~\ldots~\bd0]$ and use a similar procedure of rotation-addition as the above one to replace the null entries by replicates of the first column. The total multiplicative cost of the batch inner product is then $2$.
 
 The procedure of summing columns, removing garbage by the zero mask, and propagating first column entries, is defined as a separated algorithm for \cite{logreg}: $\operatorname{SumColVec}$, returning :
 $$\operatorname{SumColVec}(A)=\left[\begin{matrix}
@@ -878,33 +878,98 @@ $$\operatorname{SumColVec}(A)=\left[\begin{matrix}
 \end{matrix}\right],$$
  for $A\in\mathbb{R}^{m\times g}$. The desired inner product is then $\operatorname{SumColVec}(Z\circ V)$, actually a matrix of duplicates $g$ duplicates of it. Similarly, the $\operatorname{SumRowVec}$ algorithm returns a matrix with $m$ replicates of the sum over $A$ rows, using an analogous process of SIMD operations. 
 
-With the SIMD mask multiplication, the total multiplicative cost of the batch inner product is $2$.
+Now we have all tools to redefine the loop of Algorithm \ref{alg:alg1} to its vectorized form described in Algorithm \ref{alg:alg2}. 
 
-Now we have all tools to redefine the loop of Algorithm \ref{alg:alg1} to its vectorized form and compatible with HEAAN homomorphic operations. For a fixed iteration $i$, $\Z_j=Z_{i,j}$ as in 
+Notation: For a fixed iteration $k=i$, $\Z_j=Z_{i,j}$ as in equation \ref{eq:zij}. A bolded number or constant denotes the $m\times g$ matrix of its replicates. $M^{\circ \,n}$ is the result of $n$ nested Hadamard products of $M$: its elements are $M^{\circ \,n}_{i,j}=M^n_{i,j}$
 
 \begin{algorithm}[!htb]
-    \caption{Vectorized weights update \label{alg:alg1}}
+    \caption{Vectorized weights update \cite{logreg}}\label{alg:alg2}
     \begin{algorithmic}[1]
-        \REQUIRE{$Z_j,W_j,V_j$}
-\ENSURE{Weight vectors $\bd w,\bd v\in\mathbb{R}^{d+1}$}
- \STATE Initializes $\bd w,\bd v\leftarrow \bd 0$;
- \FOR{$k$ in $1,\ldots,K$}
-  \STATE Select a mini-batch $Z_i$ (in order or at random)
-  \STATE $\bd a = Z_i\cdot \bd v$
-  \FOR{$j$ in $1,\ldots,m$}
-  \STATE $b_j=\sigma_2(a_j)$
-  \ENDFOR
-  \STATE $\bd\Delta=\sum_{j=0}^{ m-1}b_j\cdot Z_i[j]$
-  \STATE $\bd w^{+}=\bd v-\gamma \bd \Delta$
-  \STATE $\bd v^{+}=(1-\eta)\bd w^{+}+\eta\bd w$
-  \STATE $\bd w=\bd w^{+},~\bd v = \bd v^{+}$
+        \REQUIRE{Matrices $Z_j,W_j,V_j\in\mathbb{R}^{m\times g}$, for $0\leq j <(d+1)/g$}
+\ENSURE{Matrices $W_j^+,V_j^+$, for $0\leq j <(d+1)/g$}
+ \FOR{$0\leq j <(d+1)/g$}
+    \STATE $M_j=Z_j\circ V_j$
+    \STATE $M_j=\operatorname{SumColVec}(M_j)$
  \ENDFOR
+ \STATE $M=\sum_{j}M_j$
+ \STATE $S=\bd {0.5}+\bd{0.15}\circ M-\bd{0.0015}\circ M^{\circ3}$
+ \FOR{$0\leq j<(d+1)/g$}
+ \STATE $S_j=S\circ Z_j$
+ \STATE $\Delta_j=\operatorname{SumRowVec(S_j)}$
+ \STATE $W_j^{+}=V_j-\bd\gamma\circ\Delta_j$
+ \STATE $V_j^{+}=(\bd1-\bd\eta)\circ W_j^{+}+\bd\eta\circ  W_j$
+ \ENDFOR
+ \RETURN{$W_j^{+},V_j^{+}$ for $0\leq j <(d+1)/g$}
     \end{algorithmic}
 \end{algorithm} 
 
+After batch choice in the first algorithm, Algorithm \ref{alg:alg2} starts. Steps 1-4 calculates the first inner product; Step 5 sums the results over $j$, since for a particular $j$, we are dealing with just a subset (of size $g$) of data columns. Step 6 evaluates the approximate sigmoid function, and finally, loop 7-12 calculates the gradient and updates weights for all columns batches $j$. 
+
+All the operations in Algorithm \ref{alg:alg2} can be efficiently computed over encrypted data, changing Hadamard products by encrypted multiplication over a linearized encrypted matrix, also we need to apply continuous apply bootstrapping after a given number of iterations to be able to correctly evaluates an arbitrary number of iterations. For further optimization details of this algorithm and the exact FHE formulation, the reader can refer to \cite{logreg}. 
 
 \section{Data Applications}\label{sec:data_app}
-test
+
+The HEAAN scheme is implemented in a C++ package also named HEAAN \cite{heaan}. It supports all cryptographic primitives and bootstrapping. The logistic regression algorithm we describe in the previous chapter was implemented by the authors in the C++ package HELR \cite{helr}, which uses HEAAN package as the FHE base.
+
+We tested the algorithm in the TissueMNIST dataset, which is part of the dataset collection from MedMNIST dataset \cite{medmnistv2}. The original version has $28\times28$ images of kidney cortex cells labeled in eight classes. We adapt the dataset by compressing\footnote{using the simple mean of the pixels} the images to a smaller $14\times14$ set and transform it into a binary classification problem choosing only samples from two classes: ``Collecting Duct'' and ``Proximal Tubule Segments'' (Figure \ref{fig:tissue})
+
+\begin{figure}[!htb]
+\centering
+\begin{subfigure}{.5\textwidth}
+  \centering
+  \includegraphics[scale=0.9]{files/figures/medmnist0.png}
+  \caption{Collecting Duct}
+  \label{fig:med0}
+\end{subfigure}%
+\begin{subfigure}{.5\textwidth}
+  \centering
+  \includegraphics[scale=0.9]{files/figures/medmnist6.png}
+  \caption{Proximal Tubule Segments}
+  \label{fig:med6}
+\end{subfigure}
+\caption{TissueMNIST}
+\label{fig:tissue}
+\end{figure}
+
+The images are matrixes of pixel values, so to train the model, we linearized them to $196$-dimensional vectors. Subsetting just the above two classes, we got $92672$ samples, with $\sim 90$ MB
+
+The CKKS ring parameters were set as:
+\begin{align*}
+    N&=2^{15}\\
+    q&=2^{45}
+\end{align*}
+
+With a total number of $50$ iterations, running bootstrapping every $3$ iterations, we got the following results:
+
+\begin{table}[!htb]
+    \centering
+    \begin{tabular}{|c|c|}\hline 
+        KeyGen time &  8.52 min\\ \hline
+         Encrypt time & 19.17 min \\ \hline
+         Training time & 6.19 hours \\ \hline
+         Public key size & 2.62 GB \\ \hline
+    \end{tabular}
+    \caption{FHE perforamce}
+    \label{tab:fhe_perf}
+\end{table}
+
+An important note is that 47\% of training time was spent in bootstrapping.
+
+In terms of the model, after 50 iterations, we got the following metrics:
+\begin{table}[!htb]
+    \centering
+    \begin{tabular}{|c|c|c|}\hline
+    & Encrypted & Unencrypted \\ \hline   
+        Accuracy & 64.6211\% & 64.6363\%\\ \hline
+         AUC & 81.7039\% & 81.6996\% \\ \hline
+    \end{tabular}
+    \caption{Model Performance}
+    \label{tab:model}
+\end{table}
+
+By unencrypted, we mean Algorithm \ref{alg:alg2} applied to unencrypted data (with approximate sigmoid). Notice that encrypted/unencrypted metrics are very close; This result shows us that the noise introduced by encryption, homomorphic evaluation, and bootstrapping is negligible regarding model performance.
+
+
 
 
 
