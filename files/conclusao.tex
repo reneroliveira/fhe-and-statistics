@@ -1,4 +1,14 @@
-\chapter{Conclusions}
+\chapter{Conclusions and Further Work}
 \label{ch:conclusions}
+
+Although the training time of 6.19 hours might appear a poor performance, considering that such a thing was impossible before 2009, the dataset has a considerable size, and the test was made on a personal computer, these results are actually encouraging, and reflects the evolution of FHE/ML research since Gentry's thesis.
+
+On the practical use of the private logistic regression model, the use case of sending encrypted data to a cloud server and running the model there is well-mapped and could be done, even more efficiently since a cloud machine has usually better specifications than personal machines. 
+
+The limitation (besides training time) is that the only stopping criterion is the maximum number of iterations, so the user should specify an ad-hoc number that is not too high to affect training time, nor too low to affect model performance. Further work would be studying how to apply classical stopping criteria such as checking gradient norm, or the weight difference, but those procedures involve comparisons which is not a natively supported operation in FHE schemes.
+
+Another natural further work is to focus on different models, such as tree-based or even neural networks. There is a lot of research in the domain of machine learning prediction/evaluation, where there is a pre-trained model, and the goal is to just apply it to an encrypted dataset, using the FHE; But there are very few research papers in training algorithms such as the one we presented here.
+
+ML prediction is generally an easier problem and requires much fewer operations than maximizing likelihoods or doing backpropagation. It might be an interesting application in image or text classification where pre-trained models are very common and available.
 
 

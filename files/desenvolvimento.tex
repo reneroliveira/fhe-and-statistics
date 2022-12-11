@@ -373,7 +373,7 @@ The Search RLWE can also be reduced to Decision RLWE. Moreover, under some assum
 The choice of $f(x)$ being a power of two cyclotomic polynomial is purely technical; in general, $f(x)$ could be any cyclotomic polynomial, and all the theory would still holds. We shall further want to multiply two instances of the cyclotomic ring, and there is a method based on Fast Fourier Transform to perform such task \cite{fftmult}. But choosing specifically $f(x)=x^n+1$ admits optimized and faster implementations \cite{swifft}.
 
 
-\chapter{Fully Homomorphic Encryption}
+\chapter{Fully Homomorphic Encryption}\label{ch:fhe}
 This chapter gives an overview of the FHE research. Section \ref{sec:privhom} returns in 1978 and revises the original proposal of the existence of FHE schemes \cite{Rivest1978}, which was called \textit{privacy homomorphisms}. Section \ref{sec:gentry} explores Gentry's solution through his Ph.D. thesis \cite{gentry2009fully} proving such existence. Section \ref{sec:ckks} presents the so-called CKKS scheme \cite{ckks17}, a practical and modern scheme that allows approximate encryption of complex (so, also real) numbers, well suitable for machine learning applications. 
 
 \section{Privacy Homomorphisms}
@@ -712,7 +712,7 @@ To make an FHE scheme out of the previously described leveled homomorphic one, w
     \modulo{\langle\bd c,\sk\rangle} = \dfrac{q}{2\pi}\cdot \sin\left(\dfrac{2\pi}{q}\cdot\langle \bd c,\sk\rangle\right) + O(\varepsilon^3\cdot q),
 \end{align*} when $| \modulo{\langle\bd c,\sk\rangle}|\leq\varepsilon\cdot q$. CKKS scheme doesn't evaluate sine functions, it only permits additions and multiplications, so the authors used the Taylor expansion polynomial approximation, which can be represented as a composition of additions and multiplications.
 
-\chapter{Private Logistic Regression}
+\chapter{Private Logistic Regression}\label{ch:logit}
  In this chapter, we describe and test an algorithm for training a logistic regression model over encrypted data proposed in \cite{logreg}. Section \ref{sec:stat_rev} reviews basics statistic about classical logistic regression in plain data. Section \ref{sec:hom_train} describes how to adapt the training algorithm to the FHE setup. Finally, Section \ref{sec:data_app} show our experimental results.
 
 \section{Statistical Review}\label{sec:stat_rev}
@@ -939,7 +939,7 @@ The CKKS ring parameters were set as:
     q&=2^{45}
 \end{align*}
 
-With a total number of $50$ iterations, running bootstrapping every $3$ iterations, we got the following results:
+With a total number of $50$ iterations, running bootstrapping every $3$ iterations, using a computer with a 64-bit quad-core Intel Core i5-6200U 2.3GHz CPU, and 16GB of RAM, we got the following results:
 
 \begin{table}[!htb]
     \centering
