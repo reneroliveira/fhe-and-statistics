@@ -46,3 +46,6 @@ run over encrypted data, while it has strong mathematical guarantees of privacy 
     * A.1 Initial definitions 
     * A.2 Abstract construction 
     * A.3 Concrete construction using ideal lattices 
+
+
+Thanks [Lucas Moschen](https://github.com/lucasmoschen), for the [latex template](https://github.com/lucasmoschen/modelo-tcc-emap)!
